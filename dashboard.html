@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberVerse — Agent Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--green:#00ff9d;--green2:#00ffc8;--red:#ff4d6d;--blue:#00cfff;--bg:#050a0f;--bg2:#080f15;--border:rgba(0,255,157,0.15);--border2:rgba(0,255,157,0.3);--muted:rgba(255,255,255,0.35);}
+body{background:var(--bg);color:var(--green);font-family:'Share Tech Mono',monospace;overflow-x:hidden;}
+#canvas-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.08;pointer-events:none;}
+.grid-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(0,255,157,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,157,0.02) 1px,transparent 1px);background-size:40px 40px;z-index:1;pointer-events:none;}
+.scanline{position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);z-index:2;pointer-events:none;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+@keyframes spin-slow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes scan{0%{top:0;opacity:1;}90%{top:100%;opacity:1;}100%{top:100%;opacity:0;}}
+@keyframes wave-anim{0%,100%{height:4px;}50%{height:18px;}}
+
+.navbar{position:fixed;top:0;left:0;right:0;background:rgba(5,10,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;}
+.nav-logo{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:#fff;letter-spacing:4px;cursor:pointer;}
+.nav-logo span{color:var(--green);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:8px 16px;font-size:10px;letter-spacing:2px;color:var(--muted);cursor:pointer;border:1px solid transparent;transition:all 0.2s;text-transform:uppercase;}
+.nav-link:hover,.nav-link.active{color:var(--green);border-color:var(--border);}
+.nav-right{display:flex;align-items:center;gap:16px;}
+.nav-agent{font-size:10px;color:var(--muted);letter-spacing:1px;}
+.nav-agent span{color:var(--green);}
+.btn-logout{background:transparent;border:1px solid var(--border);color:var(--red);font-size:10px;letter-spacing:2px;padding:6px 16px;cursor:pointer;transition:all 0.2s;font-family:'Share Tech Mono',monospace;}
+.btn-logout:hover{background:rgba(255,77,109,0.1);border-color:var(--red);}
+
+.dashboard-wrapper{display:flex;padding-top:60px;min-height:100vh;}
+.sidebar{width:260px;background:rgba(5,10,15,0.95);border-right:1px solid var(--border);position:fixed;top:60px;bottom:0;left:0;overflow-y:auto;}
+.sidebar-section{padding:16px 20px 8px;font-size:9px;letter-spacing:3px;color:rgba(0,255,157,0.4);text-transform:uppercase;}
+.sidebar-item{padding:12px 20px;font-size:11px;letter-spacing:1px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:12px;border-left:2px solid transparent;transition:all 0.2s;}
+.sidebar-item:hover,.sidebar-item.active{color:var(--green);border-left-color:var(--green);background:rgba(0,255,157,0.05);}
+.sidebar-item .si-icon{font-size:16px;width:24px;text-align:center;}
+.sidebar-badge{margin-left:auto;font-size:9px;background:rgba(0,255,157,0.15);color:var(--green);padding:2px 8px;border-radius:10px;}
+.sidebar-bottom{margin-top:auto;padding:20px;border-top:1px solid var(--border);}
+.agent-card{display:flex;align-items:center;gap:12px;}
+.agent-avatar{width:40px;height:40px;border-radius:50%;background:rgba(0,255,157,0.1);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--green);}
+.agent-info{flex:1;}
+.agent-name{font-size:12px;color:#fff;letter-spacing:1px;margin-bottom:2px;}
+.agent-rank{font-size:9px;color:var(--muted);letter-spacing:1px;}
+.agent-xp{font-size:9px;color:var(--green);margin-top:4px;}
+
+.main-content{flex:1;margin-left:260px;padding:24px;}
+.panel{display:none;animation:fadeIn 0.3s;}
+.panel.active{display:block;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.panel-title{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:#fff;letter-spacing:2px;}
+.panel-title span{color:var(--green);}
+.panel-sub{font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:6px;}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:32px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);padding:24px;transition:all 0.2s;}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.stat-value{font-family:'Orbitron',monospace;font-size:32px;font-weight:700;color:var(--green);}
+.stat-label{font-size:10px;color:var(--muted);margin-top:6px;}
+.stat-trend{font-size:9px;color:var(--green);margin-top:8px;}
+
+.ai-message-card{background:var(--bg2);border:1px solid var(--border);padding:24px;margin-bottom:24px;}
+.ai-header{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;margin-bottom:12px;color:var(--green);}
+.ai-content{font-size:12px;color:var(--muted);line-height:1.7;}
+
+.quick-actions{display:flex;gap:16px;}
+.quick-btn{flex:1;padding:16px;background:var(--bg2);border:1px solid var(--border);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+.quick-btn:hover{border-color:var(--border2);transform:translateY(-2px);}
+
+.terminal-container{background:#000;border:1px solid var(--border);overflow:hidden;}
+.terminal-header{background:rgba(255,255,255,0.03);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.terminal-dots{display:flex;gap:6px;}
+.term-dot{width:10px;height:10px;border-radius:50%;}
+.term-dot.red{background:#ff5f56;}
+.term-dot.yellow{background:#ffbd2e;}
+.term-dot.green{background:#27c93f;}
+.terminal-title{flex:1;text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;}
+.terminal-clear{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:9px;padding:4px 12px;cursor:pointer;transition:all 0.2s;}
+.terminal-clear:hover{color:var(--green);border-color:var(--border2);}
+.terminal-output{height:380px;overflow-y:auto;padding:16px;font-size:12px;line-height:1.7;font-family:'Share Tech Mono',monospace;color:rgba(0,255,157,0.8);}
+.terminal-output::-webkit-scrollbar{width:4px;}
+.terminal-output::-webkit-scrollbar-track{background:#1a1a1a;}
+.terminal-output::-webkit-scrollbar-thumb{background:var(--border);}
+.terminal-input-line{display:flex;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:rgba(0,0,0,0.8);}
+.terminal-prompt{color:rgba(0,255,157,0.5);font-size:12px;}
+.terminal-input{flex:1;background:transparent;border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:12px;caret-color:var(--green);}
+.terminal-input:focus{outline:none;}
+.terminal-help{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border);flex-wrap:wrap;background:rgba(0,0,0,0.6);}
+.help-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:9px;padding:4px 10px;cursor:pointer;transition:all 0.2s;}
+.help-btn:hover{color:var(--green);border-color:var(--border2);}
+
+.osint-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.osint-card{background:var(--bg2);border:1px solid var(--border);padding:24px;transition:all 0.2s;}
+.osint-card:hover{border-color:var(--border2);}
+.osint-icon{font-size:32px;margin-bottom:12px;}
+.osint-title{font-family:'Orbitron',monospace;font-size:14px;color:#fff;margin-bottom:6px;}
+.osint-desc{font-size:10px;color:var(--muted);margin-bottom:16px;}
+.osint-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:10px;margin-bottom:12px;font-family:'Share Tech Mono',monospace;}
+.osint-input:focus{border-color:var(--border2);outline:none;}
+.osint-btn{width:100%;padding:10px;background:transparent;border:1px solid var(--border2);color:var(--green);cursor:pointer;transition:all 0.2s;}
+.osint-btn:hover{background:rgba(0,255,157,0.1);}
+.osint-result{margin-top:12px;padding:10px;background:rgba(0,0,0,0.5);border-left:2px solid var(--green);font-size:11px;display:none;}
+.osint-result.show{display:block;animation:fadeIn 0.3s;}
+
+.missions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+.mission-card{background:var(--bg2);border:1px solid var(--border);padding:20px;cursor:pointer;transition:all 0.2s;}
+.mission-card:hover{border-color:var(--border2);transform:translateY(-3px);}
+.mission-difficulty{display:inline-block;font-size:9px;letter-spacing:2px;padding:3px 10px;border:1px solid;margin-bottom:12px;}
+.difficulty-easy{color:#27c93f;border-color:#27c93f33;}
+.difficulty-medium{color:#ffbd2e;border-color:#ffbd2e33;}
+.difficulty-hard{color:var(--red);border-color:#ff4d6d33;}
+.mission-title{font-family:'Orbitron',monospace;font-size:16px;color:#fff;margin-bottom:8px;}
+.mission-desc{font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+.mission-reward{font-size:11px;color:var(--green);}
+
+.leaderboard-container{background:var(--bg2);border:1px solid var(--border);overflow:hidden;}
+.leaderboard-header{display:grid;grid-template-columns:60px 1fr 100px 80px 100px;gap:0;padding:12px 20px;background:rgba(0,255,157,0.04);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;color:var(--muted);}
+.leaderboard-row{display:grid;grid-template-columns:60px 1fr 100px 80px 100px;gap:0;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.03);align-items:center;font-size:11px;transition:background 0.2s;}
+.leaderboard-row:hover{background:rgba(0,255,157,0.02);}
+.leaderboard-row.me{background:rgba(0,255,157,0.05);border-left:2px solid var(--green);}
+
+.profile-container{display:grid;grid-template-columns:300px 1fr;gap:20px;}
+.profile-card{background:var(--bg2);border:1px solid var(--border);padding:32px;text-align:center;}
+.profile-avatar{width:80px;height:80px;border-radius:50%;border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;background:rgba(0,255,157,0.1);}
+.profile-name{font-family:'Orbitron',monospace;font-size:18px;color:#fff;margin-bottom:4px;}
+.profile-rank{font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:20px;}
+.profile-xp-bar{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:8px;}
+.profile-xp-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green2));border-radius:2px;}
+.profile-xp-label{font-size:9px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:16px;}
+.profile-stats{display:flex;justify-content:space-around;margin-top:20px;padding-top:20px;border-top:1px solid var(--border);}
+.profile-stat{text-align:center;}
+.profile-stat span{display:block;font-size:9px;color:var(--muted);margin-bottom:4px;}
+.profile-stat strong{font-size:18px;color:var(--green);}
+.settings-card{background:var(--bg2);border:1px solid var(--border);padding:24px;}
+.settings-title{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.input-group{margin-bottom:16px;}
+.input-label{font-size:9px;letter-spacing:2px;color:rgba(0,255,157,0.6);margin-bottom:6px;display:block;text-transform:uppercase;}
+.input-field{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:10px 12px;font-family:'Share Tech Mono',monospace;}
+.input-field:focus{border-color:var(--border2);outline:none;}
+.btn-primary{width:100%;padding:12px;background:var(--green);color:#050a0f;border:none;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;}
+.btn-primary:hover{background:var(--green2);}
+
+.notification-stack{position:fixed;bottom:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:8px;}
+.notification{background:var(--bg2);border-left:3px solid var(--green);padding:12px 18px;font-size:11px;color:var(--green);animation:slideIn 0.3s;max-width:300px;}
+@keyframes slideIn{from{opacity:0;transform:translateX(100%);}to{opacity:1;transform:translateX(0);}}
+
+.term-info{color:var(--blue);}
+.term-success{color:var(--green);}
+.term-warning{color:#ffbd2e;}
+.term-error{color:var(--red);}
+
+@media(max-width:900px){
+  .sidebar{display:none;}
+  .main-content{margin-left:0;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .osint-grid{grid-template-columns:1fr;}
+  .profile-container{grid-template-columns:1fr;}
+  .nav-links{display:none;}
+}
+</style>
+</head>
+<body>
+<canvas id="canvas-bg"></canvas>
+<div class="grid-overlay"></div>
+<div class="scanline"></div>
+<div class="notification-stack" id="notificationStack"></div>
+
+<div class="navbar">
+  <div class="nav-logo" onclick="showPanel('overview')">CYBER<span>VERSE</span></div>
+  <div class="nav-links">
+    <div class="nav-link active" data-panel="overview">OVERVIEW</div>
+    <div class="nav-link" data-panel="terminal">TERMINAL</div>
+    <div class="nav-link" data-panel="osint">OSINT</div>
+    <div class="nav-link" data-panel="missions">MISSIONS</div>
+    <div class="nav-link" data-panel="leaderboard">LEADERBOARD</div>
+    <div class="nav-link" data-panel="profile">PROFILE</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-agent">AGENT: <span id="navAgentName">LOADING</span></div>
+    <button class="btn-logout" id="logoutBtn">LOGOUT</button>
+  </div>
+</div>
+
+<div class="dashboard-wrapper">
+  <div class="sidebar">
+    <div class="sidebar-section">MAIN</div>
+    <div class="sidebar-item active" onclick="showPanel('overview')"><span class="si-icon">⬡</span>OVERVIEW</div>
+    <div class="sidebar-item" onclick="showPanel('terminal')"><span class="si-icon">▶</span>TERMINAL</div>
+    <div class="sidebar-item" onclick="showPanel('osint')"><span class="si-icon">🔍</span>OSINT ENGINE</div>
+    <div class="sidebar-section">OPERATIONS</div>
+    <div class="sidebar-item" onclick="showPanel('missions')"><span class="si-icon">🎯</span>MISSIONS<span class="sidebar-badge" id="missionBadge">0</span></div>
+    <div class="sidebar-item" onclick="showPanel('leaderboard')"><span class="si-icon">🏆</span>LEADERBOARD</div>
+    <div class="sidebar-section">ACCOUNT</div>
+    <div class="sidebar-item" onclick="showPanel('profile')"><span class="si-icon">👤</span>PROFILE</div>
+    <div class="sidebar-item" onclick="logout()"><span class="si-icon">⏻</span>LOGOUT</div>
+    <div class="sidebar-bottom">
+      <div class="agent-card">
+        <div class="agent-avatar" id="sideAvatar">G</div>
+        <div class="agent-info">
+          <div class="agent-name" id="sideAgentName">AGENT</div>
+          <div class="agent-rank">ELITE HUNTER</div>
+          <div class="agent-xp" id="sideXP">XP: 0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Overview Panel -->
+    <div class="panel active" id="panel-overview">
+      <div class="panel-header">
+        <div><div class="panel-title">MISSION <span>CONTROL</span></div><div class="panel-sub">// WELCOME BACK, AGENT</div></div>
+        <div class="clock-display" id="clockDisplay"></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-value" id="statXP">0</div><div class="stat-label">TOTAL XP</div><div class="stat-trend">↑ EARN MORE</div></div>
+        <div class="stat-card"><div class="stat-value" id="statMissions">0</div><div class="stat-label">MISSIONS SOLVED</div><div class="stat-trend">↑ ACTIVE</div></div>
+        <div class="stat-card"><div class="stat-value" id="statRank">#--</div><div class="stat-label">GLOBAL RANK</div><div class="stat-trend">↑ RISING</div></div>
+        <div class="stat-card"><div class="stat-value" id="statPrivacy">82</div><div class="stat-label">PRIVACY SCORE</div><div class="stat-trend">⚠ MONITOR</div></div>
+      </div>
+      <div class="ai-message-card">
+        <div class="ai-header">🤖 AI MENTOR</div>
+        <div class="ai-content" id="aiMessage">Welcome, Agent. Type 'help' in the terminal to get started. Complete missions to earn XP and climb the leaderboard!</div>
+      </div>
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="showPanel('terminal')">▶ OPEN TERMINAL</button>
+        <button class="quick-btn" onclick="showPanel('osint')">🔍 RUN OSINT</button>
+        <button class="quick-btn" onclick="showPanel('missions')">🎯 START MISSION</button>
+      </div>
+    </div>
+
+    <!-- Terminal Panel - No buttons, just typing -->
+    <div class="panel" id="panel-terminal">
+      <div class="panel-header">
+        <div><div class="panel-title">CYBER<span>VERSE</span> TERMINAL</div><div class="panel-sub">// TYPE 'help' FOR COMMANDS — USE ARROW KEYS FOR HISTORY</div></div>
+        <button class="terminal-clear" onclick="clearTerminal()">CLEAR</button>
+      </div>
+      <div class="terminal-container">
+        <div class="terminal-header">
+          <div class="terminal-dots"><div class="term-dot red"></div><div class="term-dot yellow"></div><div class="term-dot green"></div></div>
+          <div class="terminal-title">CYBERVERSE TERMINAL v3.0 — SECURE SESSION</div>
+        </div>
+        <div class="terminal-output" id="terminalOutput"></div>
+        <div class="terminal-input-line">
+          <span class="terminal-prompt">agent@cyberverse:~$</span>
+          <input type="text" class="terminal-input" id="terminalInput" placeholder="Type your command..." autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <!-- OSINT Panel -->
+    <div class="panel" id="panel-osint">
+      <div class="panel-header"><div><div class="panel-title">OSINT <span>INTELLIGENCE ENGINE</span></div><div class="panel-sub">// ALL RESULTS ARE SIMULATED FOR EDUCATIONAL USE</div></div></div>
+      <div class="osint-grid">
+        <div class="osint-card"><div class="osint-icon">👤</div><div class="osint-title">USERNAME SEARCH</div><div class="osint-desc">Check presence across 150+ platforms</div><input type="text" class="osint-input" id="osintUser" placeholder="Enter username"><button class="osint-btn" onclick="runOsint('username')">SEARCH</button><div class="osint-result" id="osintUserResult"></div></div>
+        <div class="osint-card"><div class="osint-icon">📧</div><div class="osint-title">EMAIL BREACH CHECK</div><div class="osint-desc">Check if email appears in data breaches</div><input type="text" class="osint-input" id="osintEmail" placeholder="email@example.com"><button class="osint-btn" onclick="runOsint('email')">CHECK</button><div class="osint-result" id="osintEmailResult"></div></div>
+        <div class="osint-card"><div class="osint-icon">🌐</div><div class="osint-title">DOMAIN SCAN</div><div class="osint-desc">DNS records, ports, security headers</div><input type="text" class="osint-input" id="osintDomain" placeholder="example.com"><button class="osint-btn" onclick="runOsint('domain')">SCAN</button><div class="osint-result" id="osintDomainResult"></div></div>
+        <div class="osint-card"><div class="osint-icon">📍</div><div class="osint-title">IP GEOLOCATION</div><div class="osint-desc">Trace IP address location and ISP</div><input type="text" class="osint-input" id="osintIP" placeholder="8.8.8.8"><button class="osint-btn" onclick="runOsint('ip')">TRACE</button><div class="osint-result" id="osintIPResult"></div></div>
+      </div>
+    </div>
+
+    <!-- Missions Panel -->
+    <div class="panel" id="panel-missions">
+      <div class="panel-header"><div><div class="panel-title">ACTIVE <span>MISSIONS</span></div><div class="panel-sub">// SELECT A CASE TO BEGIN INVESTIGATION</div></div></div>
+      <div class="missions-grid" id="missionsGrid"></div>
+    </div>
+
+    <!-- Leaderboard Panel -->
+    <div class="panel" id="panel-leaderboard">
+      <div class="panel-header"><div><div class="panel-title">GLOBAL <span>LEADERBOARD</span></div><div class="panel-sub">// TOP AGENTS WORLDWIDE</div></div></div>
+      <div class="leaderboard-container">
+        <div class="leaderboard-header"><div>RANK</div><div>AGENT</div><div>XP</div><div>SOLVED</div><div>BADGE</div></div>
+        <div id="leaderboardBody"></div>
+      </div>
+    </div>
+
+    <!-- Profile Panel -->
+    <div class="panel" id="panel-profile">
+      <div class="panel-header"><div><div class="panel-title">AGENT <span>PROFILE</span></div><div class="panel-sub">// YOUR STATS & SETTINGS</div></div></div>
+      <div class="profile-container">
+        <div class="profile-card">
+          <div class="profile-avatar">🤖</div>
+          <div class="profile-name" id="profileName">AGENT</div>
+          <div class="profile-rank">ELITE HUNTER</div>
+          <div class="profile-xp-bar"><div class="profile-xp-fill" id="profileXPFill" style="width:0%"></div></div>
+          <div class="profile-xp-label"><span id="profileXPVal">0 XP</span><span>5000 XP</span></div>
+          <div class="profile-stats">
+            <div class="profile-stat"><span>MISSIONS</span><strong id="profileMissions">0</strong></div>
+            <div class="profile-stat"><span>RANK</span><strong id="profileRankNum">#0</strong></div>
+            <div class="profile-stat"><span>PRIVACY</span><strong id="profilePrivacy">82</strong></div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-title">⚙️ ACCOUNT SETTINGS</div>
+          <div class="input-group"><label class="input-label">DISPLAY NAME</label><input type="text" class="input-field" id="profileNameInput" value=""></div>
+          <div class="input-group"><label class="input-label">EMAIL</label><input type="text" class="input-field" id="profileEmailInput" value=""></div>
+          <button class="btn-primary" onclick="saveProfile()">SAVE CHANGES</button>
+          <div style="margin-top:20px;padding:16px;background:rgba(0,255,157,0.05);border:1px solid var(--border);">
+            <div style="font-size:10px;letter-spacing:2px;color:var(--green);margin-bottom:8px;">🔐 YOUR VOICE PASSPHRASE</div>
+            <div style="font-size:11px;color:var(--muted);word-break:break-all;" id="voicePhraseDisplay"></div>
+            <div style="font-size:9px;color:var(--muted);margin-top:8px;">Use this phrase for voice authentication on login</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentUser = null;
+let missionsList = [];
+let terminalHistory = [];
+let historyIndex = -1;
+let cmdCount = 0;
+
+function loadUser() {
+  const stored = sessionStorage.getItem('currentUser');
+  if (!stored) {
+    window.location.href = 'index.html';
+    return;
+  }
+  currentUser = JSON.parse(stored);
+  updateUI();
+}
+
+function updateUI() {
+  document.getElementById('navAgentName').innerText = currentUser.name;
+  document.getElementById('sideAgentName').innerText = currentUser.name;
+  document.getElementById('sideAvatar').innerText = currentUser.name.charAt(0);
+  document.getElementById('profileName').innerText = currentUser.name;
+  document.getElementById('profileNameInput').value = currentUser.name;
+  document.getElementById('profileEmailInput').value = currentUser.email;
+  document.getElementById('voicePhraseDisplay').innerText = currentUser.phrase || 'Not set';
+  
+  const xp = currentUser.xp || 0;
+  const missions = currentUser.missions || 0;
+  
+  document.getElementById('statXP').innerText = xp;
+  document.getElementById('statMissions').innerText = missions;
+  document.getElementById('profileXPVal').innerHTML = `${xp} XP`;
+  document.getElementById('profileMissions').innerText = missions;
+  document.getElementById('sideXP').innerHTML = `XP: ${xp.toLocaleString()}`;
+  
+  const xpPercent = (xp / 5000) * 100;
+  document.getElementById('profileXPFill').style.width = `${Math.min(xpPercent, 100)}%`;
+  
+  const rank = Math.floor(Math.random() * 20) + 5;
+  document.getElementById('statRank').innerText = `#${rank}`;
+  document.getElementById('profileRankNum').innerText = `#${rank}`;
+}
+
+function showNotification(msg, type = 'success') {
+  const stack = document.getElementById('notificationStack');
+  const notif = document.createElement('div');
+  notif.className = 'notification';
+  notif.innerHTML = `${type === 'error' ? '⚠ ' : '✓ '}${msg}`;
+  stack.appendChild(notif);
+  setTimeout(() => notif.remove(), 4000);
+}
+
+function logout() {
+  sessionStorage.removeItem('currentUser');
+  window.location.href = 'index.html';
+}
+
+function showPanel(panelId) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  
+  document.getElementById(`panel-${panelId}`).classList.add('active');
+  
+  const items = document.querySelectorAll('.sidebar-item');
+  for (let item of items) {
+    if (item.textContent.trim().toLowerCase().includes(panelId.toLowerCase().substring(0, 5))) {
+      item.classList.add('active');
+      break;
+    }
+  }
+  
+  const navLinks = document.querySelectorAll('.nav-link');
+  for (let nav of navLinks) {
+    if (nav.textContent.toLowerCase().includes(panelId.toLowerCase().substring(0, 5))) {
+      nav.classList.add('active');
+      break;
+    }
+  }
+  
+  if (panelId === 'leaderboard') loadLeaderboard();
+  if (panelId === 'missions') loadMissions();
+}
+
+// Terminal - No buttons, just typing
+function initTerminal() {
+  const output = document.getElementById('terminalOutput');
+  output.innerHTML = '';
+  addTermLine('<span class="term-info">═══════════════════════════════════════════════════════════</span>');
+  addTermLine('<span class="term-info">    CYBERVERSE TERMINAL v3.0 - Type "help" to begin</span>');
+  addTermLine('<span class="term-info">═══════════════════════════════════════════════════════════</span>');
+  addTermLine('');
+  addTermLine('<span class="term-success">Welcome, Agent. Type "help" for available commands.</span>');
+  addTermLine('');
+}
+
+function addTermLine(html) {
+  const output = document.getElementById('terminalOutput');
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  output.appendChild(div);
+  output.scrollTop = output.scrollHeight;
+}
+
+function clearTerminal() {
+  const output = document.getElementById('terminalOutput');
+  output.innerHTML = '';
+  initTerminal();
+}
+
+function executeCommand() {
+  const input = document.getElementById('terminalInput');
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  
+  terminalHistory.unshift(cmd);
+  historyIndex = -1;
+  
+  addTermLine(`<span class="terminal-prompt">agent@cyberverse:~$</span> <span style="color:#fff;">${escapeHtml(cmd)}</span>`);
+  input.value = '';
+  processCommand(cmd.toLowerCase());
+  cmdCount++;
+}
+
+function processCommand(cmd) {
+  if (cmd === 'help') {
+    addTermLine('<span class="term-info">Available commands:</span>');
+    addTermLine('<span class="term-info">  help                    - Show this help</span>');
+    addTermLine('<span class="term-info">  clear                   - Clear terminal</span>');
+    addTermLine('<span class="term-info">  whoami                  - Display agent info</span>');
+    addTermLine('<span class="term-info">  scan domain &lt;domain&gt;   - DNS & vulnerability scan</span>');
+    addTermLine('<span class="term-info">  email_lookup &lt;email&gt;   - Check email breaches</span>');
+    addTermLine('<span class="term-info">  username_search &lt;user&gt; - Search across platforms</span>');
+    addTermLine('<span class="term-info">  whois &lt;domain&gt;         - WHOIS lookup</span>');
+    addTermLine('<span class="term-info">  privacy_score           - Show privacy score</span>');
+  } else if (cmd === 'clear') {
+    clearTerminal();
+  } else if (cmd === 'whoami') {
+    addTermLine(`<span class="term-success">Agent: ${currentUser?.name || 'GUEST'}</span>`);
+    addTermLine(`<span class="term-info">XP: ${currentUser?.xp || 0} | Missions: ${currentUser?.missions || 0}</span>`);
+  } else if (cmd.startsWith('scan domain ')) {
+    const domain = cmd.replace('scan domain ', '').trim() || 'example.com';
+    addTermLine(`<span class="term-info">🔍 Scanning ${domain}...</span>`);
+    setTimeout(() => {
+      addTermLine(`<span class="term-success">→ IP: ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}</span>`);
+      addTermLine(`<span class="term-info">→ Open Ports: 80, 443, 22, 8080</span>`);
+      addTermLine(`<span class="term-warning">→ Risk Score: ${Math.floor(Math.random()*50)+30}/100</span>`);
+    }, 800);
+  } else if (cmd.startsWith('email_lookup ')) {
+    const email = cmd.replace('email_lookup ', '').trim();
+    addTermLine(`<span class="term-info">📧 Checking ${email}...</span>`);
+    setTimeout(() => {
+      addTermLine(`<span class="term-success">→ Format: Valid ✓</span>`);
+      addTermLine(`<span class="term-warning">→ Found in 2 breaches: RockYou2021, LinkedIn2016</span>`);
+    }, 700);
+  } else if (cmd.startsWith('username_search ')) {
+    const user = cmd.replace('username_search ', '').trim();
+    addTermLine(`<span class="term-info">👤 Searching ${user}...</span>`);
+    setTimeout(() => {
+      addTermLine(`<span class="term-success">→ GitHub: FOUND ✓</span>`);
+      addTermLine(`<span class="term-success">→ Twitter/X: FOUND ✓</span>`);
+    }, 600);
+  } else if (cmd.startsWith('whois ')) {
+    const domain = cmd.replace('whois ', '').trim();
+    addTermLine(`<span class="term-info">🌐 WHOIS lookup for ${domain}...</span>`);
+    setTimeout(() => {
+      addTermLine(`<span class="term-info">→ Registrar: NameCheap, Inc.</span>`);
+      addTermLine(`<span class="term-info">→ Created: 2020-${Math.floor(Math.random()*12)+1}-${Math.floor(Math.random()*28)+1}</span>`);
+    }, 500);
+  } else if (cmd === 'privacy_score') {
+    addTermLine(`<span class="term-info">🛡️ Privacy Score: ${currentUser?.privacyScore || 82}/100</span>`);
+  } else {
+    addTermLine(`<span class="term-error">Command not found: ${cmd}. Type 'help' for available commands.</span>`);
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// OSINT Tools
+function runOsint(type) {
+  let input, resultDiv, output = '';
+  
+  if (type === 'username') {
+    input = document.getElementById('osintUser').value.trim();
+    resultDiv = document.getElementById('osintUserResult');
+    if (!input) { showNotification('Enter a username', 'error'); return; }
+    output = `🔍 Username "${input}" found on: GitHub, Twitter/X, Reddit<br>📊 Risk Level: MEDIUM`;
+  } else if (type === 'email') {
+    input = document.getElementById('osintEmail').value.trim();
+    resultDiv = document.getElementById('osintEmailResult');
+    if (!input) { showNotification('Enter an email', 'error'); return; }
+    output = `📧 Email "${input}"<br>✓ Valid format<br>⚠ Found in 3 breaches: RockYou2021, LinkedIn2016, Adobe2013<br>🔴 Risk: HIGH`;
+  } else if (type === 'domain') {
+    input = document.getElementById('osintDomain').value.trim();
+    resultDiv = document.getElementById('osintDomainResult');
+    if (!input) { showNotification('Enter a domain', 'error'); return; }
+    output = `🌐 Domain "${input}"<br>📍 IP: ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}<br>⚠ Risk Score: ${Math.floor(Math.random()*50)+30}/100`;
+  } else if (type === 'ip') {
+    input = document.getElementById('osintIP').value.trim();
+    resultDiv = document.getElementById('osintIPResult');
+    if (!input) { showNotification('Enter an IP', 'error'); return; }
+    const countries = ['USA', 'Germany', 'UK', 'Singapore', 'Japan'];
+    output = `📍 IP "${input}"<br>🌍 Country: ${countries[Math.floor(Math.random()*countries.length)]}<br>🔒 VPN/Proxy: ${Math.random() > 0.5 ? 'Detected ⚠' : 'Not detected'}`;
+  }
+  
+  resultDiv.innerHTML = output;
+  resultDiv.classList.add('show');
+  showNotification(`OSINT scan complete: ${input}`);
+}
+
+// Missions
+function loadMissions() {
+  const stored = localStorage.getItem('cyberverse_missions');
+  if (stored) missionsList = JSON.parse(stored);
+  else missionsList = [];
+  
+  const grid = document.getElementById('missionsGrid');
+  if (missionsList.length === 0) {
+    grid.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px;">No missions available. Check back soon!</div>';
+    document.getElementById('missionBadge').innerText = '0';
+    return;
+  }
+  
+  grid.innerHTML = missionsList.map(m => `
+    <div class="mission-card" onclick="acceptMission('${m.title}', ${m.xp})">
+      <div class="mission-difficulty difficulty-${m.difficulty}">${m.difficulty.toUpperCase()}</div>
+      <div class="mission-title">${m.title}</div>
+      <div class="mission-desc">${m.desc}</div>
+      <div class="mission-reward">🏆 ${m.xp} XP</div>
+    </div>
+  `).join('');
+  document.getElementById('missionBadge').innerText = missionsList.length;
+}
+
+function acceptMission(title, xp) {
+  showNotification(`Mission "${title}" started! Use OSINT tools to investigate.`);
+  setTimeout(() => {
+    currentUser.xp = (currentUser.xp || 0) + xp;
+    currentUser.missions = (currentUser.missions || 0) + 1;
+    updateUI();
+    showNotification(`Mission complete! +${xp} XP earned!`, 'success');
+    loadLeaderboard();
+    
+    // Update in localStorage
+    const users = JSON.parse(localStorage.getItem('cyberverse_users')) || [];
+    const userIdx = users.findIndex(u => u.email === currentUser.email);
+    if (userIdx !== -1) {
+      users[userIdx].xp = currentUser.xp;
+      users[userIdx].missions = currentUser.missions;
+      localStorage.setItem('cyberverse_users', JSON.stringify(users));
+    }
+    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+  }, 3000);
+}
+
+// Leaderboard
+function loadLeaderboard() {
+  const users = JSON.parse(localStorage.getItem('cyberverse_users')) || [];
+  const sorted = [...users].sort((a, b) => (b.xp || 0) - (a.xp || 0)).slice(0, 10);
+  const body = document.getElementById('leaderboardBody');
+  
+  body.innerHTML = sorted.map((u, i) => `
+    <div class="leaderboard-row ${currentUser && u.email === currentUser.email ? 'me' : ''}">
+      <div>${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`}</div>
+      <div>${u.name}${currentUser && u.email === currentUser.email ? ' (YOU)' : ''}</div>
+      <div>${(u.xp || 0).toLocaleString()}</div>
+      <div>${u.missions || 0}</div>
+      <div><span style="border:1px solid var(--border2);padding:2px 8px;font-size:9px;">${i < 3 ? 'ELITE' : 'HUNTER'}</span></div>
+    </div>
+  `).join('');
+}
+
+// Profile
+function saveProfile() {
+  const newName = document.getElementById('profileNameInput').value.trim().toUpperCase();
+  if (newName && currentUser) {
+    currentUser.name = newName;
+    updateUI();
+    showNotification('Profile updated successfully!');
+    
+    // Update in localStorage
+    const users = JSON.parse(localStorage.getItem('cyberverse_users')) || [];
+    const userIdx = users.findIndex(u => u.email === currentUser.email);
+    if (userIdx !== -1) {
+      users[userIdx].name = newName;
+      localStorage.setItem('cyberverse_users', JSON.stringify(users));
+    }
+    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+  }
+}
+
+// Clock
+function startClock() {
+  function tick() {
+    document.getElementById('clockDisplay').textContent = new Date().toUTCString().replace('GMT', 'UTC');
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// Terminal event listeners
+document.getElementById('terminalInput')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') executeCommand();
+});
+
+document.getElementById('terminalInput')?.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (historyIndex < terminalHistory.length - 1) {
+      historyIndex++;
+      document.getElementById('terminalInput').value = terminalHistory[historyIndex];
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (historyIndex > 0) {
+      historyIndex--;
+      document.getElementById('terminalInput').value = terminalHistory[historyIndex];
+    } else if (historyIndex === 0) {
+      historyIndex = -1;
+      document.getElementById('terminalInput').value = '';
+    }
+  }
+});
+
+// Initialize
+loadUser();
+initTerminal();
+loadMissions();
+loadLeaderboard();
+startClock();
+
+document.getElementById('logoutBtn')?.addEventListener('click', logout);
+
+// Tip rotation
+const tips = ["💡 Type 'help' in the terminal", "💡 Complete missions to earn XP", "💡 Use OSINT tools to investigate"];
+let tipIndex = 0;
+setInterval(() => {
+  const aiMsg = document.getElementById('aiMessage');
+  if (aiMsg && aiMsg.offsetParent) {
+    aiMsg.innerHTML = tips[tipIndex % tips.length];
+    tipIndex++;
+  }
+}, 15000);
+
+// Background particles
+const canvas = document.getElementById('canvas-bg');
+const ctxBg = canvas.getContext('2d');
+let particles = [];
+
+function resizeBg() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+function initParticles() {
+  particles = [];
+  for (let i = 0; i < 80; i++) {
+    particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.2, r: Math.random() * 2 + 0.5, a: Math.random() * 0.5 + 0.1 });
+  }
+}
+function drawBg() {
+  ctxBg.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    ctxBg.globalAlpha = p.a;
+    ctxBg.fillStyle = '#00ff9d';
+    ctxBg.beginPath(); ctxBg.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctxBg.fill();
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+  });
+  requestAnimationFrame(drawBg);
+}
+resizeBg(); initParticles(); drawBg();
+window.addEventListener('resize', () => { resizeBg(); initParticles(); });
+</script>
+</body>
+</html>
