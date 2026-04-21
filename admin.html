@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<meta name="theme-color" content="#050a0f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>CyberVerse — Admin Control Panel | Fully Responsive</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --green: #00ff9d;
+  --green2: #00ffc8;
+  --red: #ff4d6d;
+  --blue: #00cfff;
+  --purple: #b44fff;
+  --bg: #050a0f;
+  --bg2: #080f15;
+  --border: rgba(0, 255, 157, 0.15);
+  --border2: rgba(0, 255, 157, 0.3);
+  --muted: rgba(255, 255, 255, 0.35);
+}
+
+body {
+  background: var(--bg);
+  color: var(--green);
+  font-family: 'Share Tech Mono', monospace;
+  overflow-x: hidden;
+  position: relative;
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Moving Background */
+.cyber-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.cyber-bg canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bg-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 30%, rgba(0, 255, 157, 0.03), transparent 70%);
+  z-index: 1;
+}
+
+.grid-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(0, 255, 157, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 157, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(5, 10, 15, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 60px;
+}
+
+@media (min-width: 768px) {
+  .navbar {
+    padding: 0 32px;
+  }
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .nav-left {
+    gap: 8px;
+  }
+}
+
+.btn-back {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--green);
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Share Tech Mono', monospace;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .btn-back {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+  
+  .btn-back span {
+    display: none;
+  }
+}
+
+.btn-back:active {
+  transform: scale(0.95);
+  background: rgba(0, 255, 157, 0.1);
+}
+
+.nav-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .nav-logo {
+    font-size: 20px;
+    letter-spacing: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-logo {
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+}
+
+.nav-logo span { color: var(--green); }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-agent {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav-agent {
+    display: block;
+    font-size: 10px;
+  }
+}
+
+.nav-agent span { color: var(--green); }
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--red);
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Share Tech Mono', monospace;
+  border-radius: 6px;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .btn-logout {
+    font-size: 9px;
+    padding: 5px 8px;
+  }
+}
+
+.btn-logout:active {
+  transform: scale(0.95);
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--green);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 18px;
+  border-radius: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-menu-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block;
+  }
+}
+
+/* Admin Container */
+.admin-container {
+  display: flex;
+  padding-top: 60px;
+  min-height: 100vh;
+  position: relative;
+  z-index: 10;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: rgba(5, 10, 15, 0.95);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 60px;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 90;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+@media (min-width: 769px) {
+  .sidebar {
+    transform: translateX(0);
+  }
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sidebar-section {
+  padding: 16px 20px 8px;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(0, 255, 157, 0.4);
+  text-transform: uppercase;
+}
+
+.sidebar-item {
+  padding: 14px 20px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-left: 2px solid transparent;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sidebar-item:active {
+  background: rgba(0, 255, 157, 0.1);
+}
+
+.sidebar-item.active {
+  color: var(--green);
+  border-left-color: var(--green);
+  background: rgba(0, 255, 157, 0.05);
+}
+
+.sidebar-item .si-icon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.agent-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agent-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 255, 157, 0.1);
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--green);
+}
+
+.agent-info {
+  flex: 1;
+}
+
+.agent-name {
+  font-size: 12px;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.agent-role {
+  font-size: 9px;
+  color: var(--green);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 0;
+  padding: 16px;
+  overflow-y: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 769px) {
+  .main-content {
+    margin-left: 260px;
+    padding: 24px;
+  }
+}
+
+/* Panel */
+.panel {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.panel.active {
+  display: block;
+}
+
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .panel-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+  }
+}
+
+.panel-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+}
+
+@media (min-width: 768px) {
+  .panel-title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .panel-title {
+    font-size: 16px;
+  }
+}
+
+.panel-title span { color: var(--green); }
+
+.panel-sub {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+@media (max-width: 480px) {
+  .panel-sub {
+    font-size: 9px;
+  }
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+}
+
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 16px;
+  transition: all 0.2s;
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stat-card:active {
+  transform: scale(0.98);
+  border-color: var(--border2);
+}
+
+@media (min-width: 768px) {
+  .stat-card {
+    padding: 20px;
+  }
+}
+
+.stat-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+@media (min-width: 768px) {
+  .stat-value {
+    font-size: 32px;
+  }
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+@media (max-width: 480px) {
+  .stat-label {
+    font-size: 9px;
+  }
+}
+
+/* Table Container */
+.table-container {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  border-radius: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 550px;
+}
+
+th, td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 11px;
+}
+
+@media (min-width: 768px) {
+  th, td {
+    padding: 12px 16px;
+    font-size: 12px;
+  }
+}
+
+th {
+  color: var(--green);
+  font-weight: 400;
+  letter-spacing: 1px;
+  background: rgba(0, 255, 157, 0.03);
+}
+
+td {
+  color: var(--muted);
+  word-break: break-word;
+}
+
+/* Buttons */
+.btn-icon {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--green);
+  padding: 6px 10px;
+  cursor: pointer;
+  margin: 0 2px;
+  font-size: 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 40px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+@media (min-width: 768px) {
+  .btn-icon {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+}
+
+.btn-icon:active {
+  transform: scale(0.95);
+  background: rgba(0, 255, 157, 0.1);
+}
+
+.btn-icon.danger {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* Terminal */
+.terminal-container {
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.terminal-header {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.terminal-dot.red { background: #ff5f56; }
+.terminal-dot.yellow { background: #ffbd2e; }
+.terminal-dot.green { background: #27c93f; }
+
+.terminal-title {
+  flex: 1;
+  text-align: center;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+@media (min-width: 768px) {
+  .terminal-title {
+    font-size: 10px;
+  }
+}
+
+.terminal-clear {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.terminal-output {
+  height: 280px;
+  overflow-y: auto;
+  padding: 12px;
+  font-size: 10px;
+  line-height: 1.6;
+  font-family: 'Share Tech Mono', monospace;
+  background: #000;
+  color: rgba(0, 255, 157, 0.8);
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .terminal-output {
+    height: 350px;
+    padding: 16px;
+    font-size: 12px;
+  }
+}
+
+.terminal-output::-webkit-scrollbar {
+  width: 3px;
+}
+
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.8);
+  flex-wrap: wrap;
+}
+
+.terminal-prompt {
+  color: rgba(0, 255, 157, 0.5);
+  font-size: 10px;
+}
+
+@media (min-width: 768px) {
+  .terminal-prompt {
+    font-size: 12px;
+  }
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  caret-color: var(--green);
+  min-width: 100px;
+  padding: 8px 0;
+}
+
+@media (min-width: 768px) {
+  .terminal-input {
+    font-size: 12px;
+  }
+}
+
+.terminal-input:focus {
+  outline: none;
+}
+
+.terminal-execute {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--green);
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 6px;
+  font-size: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.terminal-help {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.help-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 9px;
+  padding: 5px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 768px) {
+  .help-btn {
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+}
+
+.help-btn:active {
+  transform: scale(0.95);
+  background: rgba(0, 255, 157, 0.1);
+}
+
+/* Terminal Output Styles */
+.term-info { color: var(--blue); }
+.term-success { color: var(--green); }
+.term-warning { color: #ffbd2e; }
+.term-error { color: var(--red); }
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .modal-content {
+    padding: 24px;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  color: #fff;
+}
+
+.modal-close {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 18px;
+}
+
+.modal-body {
+  margin-bottom: 20px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Input Groups */
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(0, 255, 157, 0.6);
+  margin-bottom: 8px;
+  display: block;
+  text-transform: uppercase;
+}
+
+.input-field {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 12px 14px;
+  font-family: 'Share Tech Mono', monospace;
+  border-radius: 10px;
+  font-size: 14px;
+  -webkit-appearance: none;
+}
+
+@media (max-width: 480px) {
+  .input-field {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
+
+.input-field:focus {
+  border-color: var(--border2);
+  outline: none;
+}
+
+select.input-field {
+  cursor: pointer;
+}
+
+textarea.input-field {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Notification Stack */
+.notification-stack {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  left: 20px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .notification-stack {
+    left: auto;
+    right: 20px;
+  }
+}
+
+.notification {
+  background: var(--bg2);
+  border-left: 3px solid var(--green);
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--green);
+  animation: slideIn 0.3s ease;
+  max-width: 100%;
+  border-radius: 8px;
+  pointer-events: auto;
+}
+
+@media (min-width: 768px) {
+  .notification {
+    max-width: 320px;
+    padding: 12px 16px;
+  }
+}
+
+.notification.error {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 85;
+}
+
+.sidebar-overlay.show {
+  display: block;
+}
+
+@media (min-width: 769px) {
+  .sidebar-overlay {
+    display: none !important;
+  }
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  .quick-actions {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+
+.quick-btn {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--green);
+  padding: 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 10px;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .quick-btn {
+    padding: 14px;
+    font-size: 11px;
+  }
+}
+
+.quick-btn:active {
+  transform: scale(0.97);
+  background: rgba(0, 255, 157, 0.05);
+}
+
+/* Hide on mobile */
+@media (max-width: 480px) {
+  .hide-mobile {
+    display: none;
+  }
+}
+
+/* Clock Display */
+#clockDisplay {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+@media (min-width: 768px) {
+  #clockDisplay {
+    font-size: 11px;
+  }
+}
+
+/* System Status */
+#systemStatus div {
+  font-size: 10px;
+}
+
+@media (min-width: 768px) {
+  #systemStatus div {
+    font-size: 11px;
+  }
+}
+
+/* Back to Menu Button in Terminal */
+.terminal-back-btn {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--green);
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.terminal-back-btn:active {
+  transform: scale(0.95);
+  background: rgba(0, 255, 157, 0.1);
+}
+</style>
+</head>
+<body>
+<div class="cyber-bg">
+  <canvas id="matrixCanvas"></canvas>
+  <div class="bg-gradient"></div>
+</div>
+<div class="grid-overlay"></div>
+<div class="scanline"></div>
+<div class="notification-stack" id="notificationStack"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="navbar">
+  <div class="nav-left">
+    <button class="btn-back" onclick="goToDashboard()">
+      <i class="fas fa-arrow-left"></i> <span class="hide-mobile">BACK</span>
+    </button>
+    <div class="nav-logo">CYBER<span>VERSE</span> <span style="font-size:10px;color:var(--red);">ADMIN</span></div>
+  </div>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  <div class="nav-right">
+    <div class="nav-agent">ADMIN: <span id="adminName">ADMIN</span></div>
+    <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span class="hide-mobile">LOGOUT</span></button>
+  </div>
+</div>
+
+<div class="admin-container">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-section">CONTROL</div>
+    <div class="sidebar-item active" onclick="showPanel('overview'); closeSidebar()">
+      <span class="si-icon"><i class="fas fa-chart-line"></i></span>OVERVIEW
+    </div>
+    <div class="sidebar-item" onclick="showPanel('users'); closeSidebar()">
+      <span class="si-icon"><i class="fas fa-users"></i></span>USER MANAGEMENT
+    </div>
+    <div class="sidebar-item" onclick="showPanel('missions'); closeSidebar()">
+      <span class="si-icon"><i class="fas fa-bullseye"></i></span>MISSION CONTROL
+    </div>
+    <div class="sidebar-item" onclick="showPanel('terminal'); closeSidebar()">
+      <span class="si-icon"><i class="fas fa-terminal"></i></span>TERMINAL
+    </div>
+    <div class="sidebar-item" onclick="showPanel('analytics'); closeSidebar()">
+      <span class="si-icon"><i class="fas fa-chart-bar"></i></span>ANALYTICS
+    </div>
+    <div class="sidebar-bottom">
+      <div class="agent-card">
+        <div class="agent-avatar"><i class="fas fa-user-shield"></i></div>
+        <div class="agent-info">
+          <div class="agent-name" id="sideAdminName">ADMIN</div>
+          <div class="agent-role">SUPER ADMIN</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Overview Panel -->
+    <div class="panel active" id="panel-overview">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">ADMIN <span>DASHBOARD</span></div>
+          <div class="panel-sub">// SYSTEM CONTROL PANEL</div>
+        </div>
+        <div id="clockDisplay"></div>
+      </div>
+      
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="showPanel('users')"><i class="fas fa-users"></i> <span>Manage Users</span></button>
+        <button class="quick-btn" onclick="showPanel('missions')"><i class="fas fa-tasks"></i> <span>Manage Missions</span></button>
+        <button class="quick-btn" onclick="showPanel('terminal')"><i class="fas fa-terminal"></i> <span>Terminal</span></button>
+        <button class="quick-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> <span>Refresh</span></button>
+      </div>
+      
+      <div class="stats-grid" id="statsGrid"></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);padding:16px;border-radius:12px;">
+        <div style="font-family:'Orbitron',monospace;font-size:12px;margin-bottom:16px;">⚡ SYSTEM STATUS</div>
+        <div id="systemStatus"></div>
+      </div>
+    </div>
+
+    <!-- User Management Panel -->
+    <div class="panel" id="panel-users">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">USER <span>MANAGEMENT</span></div>
+          <div class="panel-sub">// ADD, EDIT, DELETE USERS</div>
+        </div>
+        <button class="btn-icon" onclick="openUserModal()"><i class="fas fa-plus"></i> ADD</button>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>NAME</th><th>EMAIL</th><th>ROLE</th><th>XP</th><th>MISSIONS</th><th>ACTIONS</th></tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Missions Panel -->
+    <div class="panel" id="panel-missions">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">MISSION <span>CONTROL</span></div>
+          <div class="panel-sub">// CREATE, EDIT, DELETE MISSIONS</div>
+        </div>
+        <button class="btn-icon" onclick="openMissionModal()"><i class="fas fa-plus"></i> ADD</button>
+      </div>
+      <div class="table-container">
+        </table>
+          <thead>
+            <tr><th>TITLE</th><th>DIFFICULTY</th><th>XP</th><th>DESCRIPTION</th><th>ACTIONS</th></tr>
+          </thead>
+          <tbody id="missionsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Terminal Panel -->
+    <div class="panel" id="panel-terminal">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">CYBER<span>VERSE</span> TERMINAL</div>
+          <div class="panel-sub">// ADMIN COMMAND LINE INTERFACE</div>
+        </div>
+        <button class="terminal-back-btn" onclick="showPanel('overview')">
+          <i class="fas fa-arrow-left"></i> BACK TO MENU
+        </button>
+      </div>
+      <div class="terminal-container">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+          </div>
+          <div class="terminal-title">ADMIN TERMINAL v2.0 — ROOT ACCESS</div>
+          <button class="terminal-clear" onclick="clearTerminal()"><i class="fas fa-eraser"></i> CLEAR</button>
+        </div>
+        <div class="terminal-output" id="terminalOutput"></div>
+        <div class="terminal-input-line">
+          <span class="terminal-prompt">admin@cyberverse:~$</span>
+          <input type="text" class="terminal-input" id="terminalInput" placeholder="Type 'help' for commands..." autocomplete="off" enterkeyhint="go">
+          <button class="terminal-execute" onclick="executeCommand()"><i class="fas fa-play"></i> RUN</button>
+        </div>
+        <div class="terminal-help">
+          <button class="help-btn" onclick="quickCmd('help')">help</button>
+          <button class="help-btn" onclick="quickCmd('list users')">users</button>
+          <button class="help-btn" onclick="quickCmd('list missions')">missions</button>
+          <button class="help-btn" onclick="quickCmd('stats')">stats</button>
+          <button class="help-btn" onclick="quickCmd('clear')">clear</button>
+          <button class="help-btn" onclick="quickCmd('whoami')">whoami</button>
+          <button class="help-btn" onclick="quickCmd('status')">status</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Panel -->
+    <div class="panel" id="panel-analytics">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">SYSTEM <span>ANALYTICS</span></div>
+          <div class="panel-sub">// PLATFORM STATISTICS</div>
+        </div>
+      </div>
+      <div class="stats-grid" id="analyticsGrid"></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);padding:16px;margin-top:16px;border-radius:12px;">
+        <div style="font-family:'Orbitron',monospace;font-size:12px;margin-bottom:16px;">📈 USER ACTIVITY LOG</div>
+        <div id="activityLog" style="max-height:300px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal" id="userModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title" id="userModalTitle">ADD USER</div>
+      <button class="modal-close" onclick="closeUserModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editUserId">
+      <div class="input-group"><label class="input-label">NAME</label><input type="text" class="input-field" id="userName" placeholder="Enter agent name"></div>
+      <div class="input-group"><label class="input-label">EMAIL</label><input type="email" class="input-field" id="userEmail" placeholder="agent@cyberverse.io"></div>
+      <div class="input-group"><label class="input-label">PASSWORD</label><input type="password" class="input-field" id="userPass" placeholder="Enter password"></div>
+      <div class="input-group"><label class="input-label">VOICE PASSPHRASE</label><input type="text" class="input-field" id="userPhrase" placeholder="Auto-generated if empty"></div>
+      <div class="input-group"><label class="input-label">ROLE</label>
+        <select class="input-field" id="userRole"><option value="user">User</option><option value="admin">Admin</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-icon" onclick="closeUserModal()">CANCEL</button>
+      <button class="btn-icon" onclick="saveUser()">SAVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mission Modal -->
+<div class="modal" id="missionModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title" id="missionModalTitle">ADD MISSION</div>
+      <button class="modal-close" onclick="closeMissionModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editMissionId">
+      <div class="input-group"><label class="input-label">TITLE</label><input type="text" class="input-field" id="missionTitle" placeholder="Mission title"></div>
+      <div class="input-group"><label class="input-label">DIFFICULTY</label>
+        <select class="input-field" id="missionDifficulty"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
+      </div>
+      <div class="input-group"><label class="input-label">XP REWARD</label><input type="number" class="input-field" id="missionXP" placeholder="XP amount"></div>
+      <div class="input-group"><label class="input-label">DESCRIPTION</label><textarea class="input-field" id="missionDesc" rows="3" placeholder="Mission description"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-icon" onclick="closeMissionModal()">CANCEL</button>
+      <button class="btn-icon" onclick="saveMission()">SAVE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== GLOBAL DATA ==========
+let users = [];
+let missions = [];
+let currentAdminUser = null;
+let terminalHistory = [];
+let historyIndex = -1;
+
+// ========== NAVIGATION FUNCTIONS ==========
+function goToDashboard() {
+  const storedUser = sessionStorage.getItem('currentUser');
+  if (storedUser) {
+    window.location.href = 'dashboard.html';
+  } else {
+    window.location.href = 'index.html';
+  }
+}
+
+// ========== MOVING BACKGROUND MATRIX ==========
+function initMatrixBackground() {
+  const canvas = document.getElementById('matrixCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  const chars = '01アイウエオカキクケコABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+  const fontSize = 14;
+  let columns = Math.floor(canvas.width / fontSize);
+  let drops = Array(columns).fill(1);
+  
+  function updateColumns() {
+    columns = Math.floor(canvas.width / fontSize);
+    drops = Array(columns).fill(1);
+  }
+  
+  window.addEventListener('resize', updateColumns);
+  
+  function draw() {
+    ctx.fillStyle = 'rgba(5, 10, 15, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = '#00ff9d';
+    ctx.font = fontSize + 'px monospace';
+    
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+      
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+    
+    requestAnimationFrame(draw);
+  }
+  
+  draw();
+}
+
+// ========== TERMINAL FUNCTIONS ==========
+function initTerminal() {
+  const output = document.getElementById('terminalOutput');
+  if (!output) return;
+  output.innerHTML = '';
+  addTermLine('<span class="term-info">═══════════════════════════════════════════════════════════</span>');
+  addTermLine('<span class="term-info">    CYBERVERSE ADMIN TERMINAL v2.0 - ROOT ACCESS GRANTED</span>');
+  addTermLine('<span class="term-info">═══════════════════════════════════════════════════════════</span>');
+  addTermLine('');
+  addTermLine('<span class="term-success">Welcome, Administrator. Type "help" for available commands.</span>');
+  addTermLine('');
+  addTermLine('<span class="term-info">Click "BACK TO MENU" above to return to the dashboard.</span>');
+  addTermLine('');
+}
+
+function addTermLine(html) {
+  const output = document.getElementById('terminalOutput');
+  if (!output) return;
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  output.appendChild(div);
+  output.scrollTop = output.scrollHeight;
+}
+
+function clearTerminal() {
+  const output = document.getElementById('terminalOutput');
+  if (output) output.innerHTML = '';
+  initTerminal();
+}
+
+function quickCmd(cmd) {
+  const input = document.getElementById('terminalInput');
+  if (input) {
+    input.value = cmd;
+    executeCommand();
+  }
+}
+
+function executeCommand() {
+  const input = document.getElementById('terminalInput');
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  
+  terminalHistory.unshift(cmd);
+  historyIndex = -1;
+  
+  addTermLine(`<span class="terminal-prompt">admin@cyberverse:~$</span> <span style="color:#fff;">${escapeHtml(cmd)}</span>`);
+  input.value = '';
+  processCommand(cmd.toLowerCase());
+}
+
+function processCommand(cmd) {
+  if (cmd === 'help') {
+    addTermLine('<span class="term-info">Available commands:</span>');
+    addTermLine('<span class="term-info">  help         - Show this help</span>');
+    addTermLine('<span class="term-info">  clear        - Clear terminal</span>');
+    addTermLine('<span class="term-info">  whoami       - Display admin info</span>');
+    addTermLine('<span class="term-info">  list users   - List all users</span>');
+    addTermLine('<span class="term-info">  list missions- List all missions</span>');
+    addTermLine('<span class="term-info">  stats        - System statistics</span>');
+    addTermLine('<span class="term-info">  status       - System status</span>');
+    addTermLine('<span class="term-info">  back         - Return to dashboard menu</span>');
+  } else if (cmd === 'clear') {
+    clearTerminal();
+  } else if (cmd === 'whoami') {
+    addTermLine(`<span class="term-success">Admin: ${currentAdminUser?.name || 'ADMIN'}</span>`);
+    addTermLine(`<span class="term-info">Role: Super Administrator</span>`);
+  } else if (cmd === 'list users') {
+    if (!users || users.length === 0) {
+      addTermLine('<span class="term-warning">No users found.</span>');
+    } else {
+      addTermLine('<span class="term-info">Registered Users:</span>');
+      users.forEach((user, i) => {
+        addTermLine(`<span class="term-out">  ${i+1}. ${user.name} (${user.email}) - ${user.role || 'user'}</span>`);
+      });
+    }
+  } else if (cmd === 'list missions') {
+    if (!missions || missions.length === 0) {
+      addTermLine('<span class="term-warning">No missions found.</span>');
+    } else {
+      addTermLine('<span class="term-info">Available Missions:</span>');
+      missions.forEach((mission, i) => {
+        addTermLine(`<span class="term-out">  ${i+1}. ${mission.title} - ${mission.xp} XP [${mission.difficulty}]</span>`);
+      });
+    }
+  } else if (cmd === 'stats') {
+    const userCount = users?.length || 0;
+    const adminCount = users?.filter(u => u && u.role === 'admin').length || 0;
+    const totalXP = users?.reduce((sum, u) => sum + (u?.xp || 0), 0) || 0;
+    const missionCount = missions?.length || 0;
+    addTermLine('<span class="term-info">System Statistics:</span>');
+    addTermLine(`<span class="term-out">  Total Users: ${userCount}</span>`);
+    addTermLine(`<span class="term-out">  Admin Users: ${adminCount}</span>`);
+    addTermLine(`<span class="term-out">  Total XP: ${totalXP.toLocaleString()}</span>`);
+    addTermLine(`<span class="term-out">  Total Missions: ${missionCount}</span>`);
+  } else if (cmd === 'status') {
+    addTermLine('<span class="term-success">● Database: ONLINE</span>');
+    addTermLine('<span class="term-success">● Terminal: ACTIVE</span>');
+    addTermLine('<span class="term-success">● Voice Auth: READY</span>');
+    addTermLine('<span class="term-success">● API Gateway: ONLINE</span>');
+  } else if (cmd === 'back') {
+    addTermLine('<span class="term-success">Returning to dashboard menu...</span>');
+    setTimeout(() => showPanel('overview'), 500);
+  } else {
+    addTermLine(`<span class="term-error">Command not found: ${cmd}. Type 'help' for commands.</span>`);
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ========== DATA FUNCTIONS ==========
+function refreshData() {
+  loadData();
+  updateOverview();
+  updateUsersTable();
+  updateMissionsTable();
+  updateAnalytics();
+  showNotification('Data refreshed successfully!', 'success');
+}
+
+function loadData() {
+  const storedUser = sessionStorage.getItem('currentUser');
+  if (storedUser) {
+    try {
+      currentAdminUser = JSON.parse(storedUser);
+      document.getElementById('adminName').innerText = currentAdminUser.name || 'ADMIN';
+      document.getElementById('sideAdminName').innerText = currentAdminUser.name || 'ADMIN';
+    } catch(e) {}
+  }
+  
+  const storedUsers = localStorage.getItem('cyberverse_users');
+  if (storedUsers) {
+    try {
+      users = JSON.parse(storedUsers);
+    } catch(e) { users = []; }
+  }
+  
+  const adminExists = users.some(u => u && u.email === "vj@gmail.com");
+  if (!adminExists && users.length > 0) {
+    users.push({ id: Date.now(), name: "ADMIN", email: "vj@gmail.com", pass: "vidhi2816", phrase: "BELLAVITA", role: "admin", xp: 9999, missions: 100 });
+    saveUsers();
+  } else if (users.length === 0) {
+    users = [
+      { id: 1, name: "ADMIN", email: "vj@gmail.com", pass: "vidhi2816", phrase: "BELLAVITA", role: "admin", xp: 9999, missions: 100 },
+      { id: 2, name: "AGENT_X", email: "agent@cyberverse.io", pass: "agent123", phrase: "SHADOW GRID SEVEN", role: "user", xp: 2500, missions: 12 },
+      { id: 3, name: "DEMO_USER", email: "demo@cyberverse.io", pass: "demo123", phrase: "CYBERVERSE PROTOCOL ALPHA", role: "user", xp: 1240, missions: 5 }
+    ];
+    saveUsers();
+  }
+  
+  const storedMissions = localStorage.getItem('cyberverse_missions');
+  if (storedMissions) {
+    try {
+      missions = JSON.parse(storedMissions);
+    } catch(e) { missions = []; }
+  }
+  
+  if (!missions || missions.length === 0) {
+    missions = [
+      { id: 1, title: 'PhishTrack Alpha', difficulty: 'easy', xp: 150, desc: 'Investigate phishing campaign.' },
+      { id: 2, title: 'RedNet Infiltration', difficulty: 'medium', xp: 280, desc: 'Trace unauthorized access.' },
+      { id: 3, title: 'Ghost Protocol', difficulty: 'hard', xp: 420, desc: 'Identify threat actor.' }
+    ];
+    saveMissions();
+  }
+}
+
+function saveUsers() { localStorage.setItem('cyberverse_users', JSON.stringify(users)); }
+function saveMissions() { localStorage.setItem('cyberverse_missions', JSON.stringify(missions)); }
+
+function showNotification(msg, type = 'success') {
+  const stack = document.getElementById('notificationStack');
+  const notif = document.createElement('div');
+  notif.className = `notification ${type === 'error' ? 'error' : ''}`;
+  notif.innerHTML = `${type === 'error' ? '⚠ ' : '✓ '}${msg}`;
+  stack.appendChild(notif);
+  setTimeout(() => notif.remove(), 4000);
+}
+
+// ========== UI UPDATE FUNCTIONS ==========
+function updateOverview() {
+  const adminCount = users.filter(u => u && u.role === 'admin').length;
+  const userCount = users.filter(u => u && u.role === 'user').length;
+  const totalXP = users.reduce((sum, u) => sum + (u?.xp || 0), 0);
+  const totalMissions = missions?.length || 0;
+  
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card" onclick="showPanel('users')">
+      <div class="stat-value">${users?.length || 0}</div>
+      <div class="stat-label">TOTAL USERS</div>
+    </div>
+    <div class="stat-card" onclick="showPanel('users')">
+      <div class="stat-value">${userCount}</div>
+      <div class="stat-label">REGULAR USERS</div>
+    </div>
+    <div class="stat-card" onclick="showPanel('users')">
+      <div class="stat-value">${adminCount}</div>
+      <div class="stat-label">ADMINS</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${totalXP.toLocaleString()}</div>
+      <div class="stat-label">TOTAL XP</div>
+    </div>
+    <div class="stat-card" onclick="showPanel('missions')">
+      <div class="stat-value">${totalMissions}</div>
+      <div class="stat-label">TOTAL MISSIONS</div>
+    </div>
+  `;
+  
+  document.getElementById('systemStatus').innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <div><span style="color:var(--green);">●</span> Database: ONLINE</div>
+      <div><span style="color:var(--green);">●</span> Voice Auth: ACTIVE</div>
+      <div><span style="color:var(--green);">●</span> Terminal: ACTIVE</div>
+      <div><span style="color:var(--green);">●</span> API Gateway: ONLINE</div>
+    </div>
+  `;
+}
+
+function updateUsersTable() {
+  const tbody = document.getElementById('usersTableBody');
+  if (!tbody) return;
+  
+  if (!users || users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No users found</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = users.map((user, idx) => {
+    if (!user) return '';
+    return `
+      <tr>
+        <td>${escapeHtml(user.name || 'Unknown')}</td>
+        <td>${escapeHtml(user.email || 'unknown@email.com')}</td>
+        <td><span style="color:${user.role === 'admin' ? 'var(--red)' : 'var(--green)'}">${(user.role || 'user').toUpperCase()}</span></td>
+        <td>${user.xp || 0}</td>
+        <td>${user.missions || 0}</td>
+        <td>
+          <button class="btn-icon" onclick="editUser(${idx})"><i class="fas fa-edit"></i></button>
+          <button class="btn-icon danger" onclick="deleteUser(${idx})"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function updateMissionsTable() {
+  const tbody = document.getElementById('missionsTableBody');
+  if (!tbody) return;
+  
+  if (!missions || missions.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No missions found</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = missions.map((mission, idx) => {
+    if (!mission) return '';
+    const diffColor = mission.difficulty === 'easy' ? '#27c93f' : mission.difficulty === 'medium' ? '#ffbd2e' : 'var(--red)';
+    return `
+      <tr>
+        <td>${escapeHtml(mission.title || 'Untitled')}</td>
+        <td><span style="color:${diffColor}">${(mission.difficulty || 'easy').toUpperCase()}</span></td>
+        <td>${mission.xp || 0}</td>
+        <td>${escapeHtml(mission.desc || 'No description')}</td>
+        <td>
+          <button class="btn-icon" onclick="editMission(${idx})"><i class="fas fa-edit"></i></button>
+          <button class="btn-icon danger" onclick="deleteMission(${idx})"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function updateAnalytics() {
+  const userCount = users?.length || 0;
+  const adminCount = users?.filter(u => u && u.role === 'admin').length || 0;
+  const totalXP = users?.reduce((sum, u) => sum + (u?.xp || 0), 0) || 0;
+  const totalMissions = users?.reduce((sum, u) => sum + (u?.missions || 0), 0) || 0;
+  const avgXP = userCount > 0 ? Math.floor(totalXP / userCount) : 0;
+  
+  document.getElementById('analyticsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-value">${userCount}</div><div class="stat-label">TOTAL USERS</div></div>
+    <div class="stat-card"><div class="stat-value">${adminCount}</div><div class="stat-label">ADMIN USERS</div></div>
+    <div class="stat-card"><div class="stat-value">${totalXP.toLocaleString()}</div><div class="stat-label">TOTAL XP</div></div>
+    <div class="stat-card"><div class="stat-value">${avgXP}</div><div class="stat-label">AVERAGE XP</div></div>
+    <div class="stat-card"><div class="stat-value">${totalMissions}</div><div class="stat-label">MISSIONS COMPLETED</div></div>
+  `;
+  
+  const log = document.getElementById('activityLog');
+  const activities = [
+    `[${new Date().toLocaleString()}] Admin logged in`,
+    `[${new Date().toLocaleString()}] System status: ONLINE`,
+    `[${new Date().toLocaleString()}] ${userCount} active users registered`,
+    `[${new Date().toLocaleString()}] ${missions?.length || 0} missions available`
+  ];
+  log.innerHTML = activities.map(a => `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);">${a}</div>`).join('');
+}
+
+// ========== USER CRUD ==========
+let currentEditUserIdx = null;
+
+function openUserModal(editIdx = null) {
+  currentEditUserIdx = editIdx;
+  if (editIdx !== null && users && users[editIdx]) {
+    const user = users[editIdx];
+    document.getElementById('userModalTitle').textContent = 'EDIT USER';
+    document.getElementById('userName').value = user.name || '';
+    document.getElementById('userEmail').value = user.email || '';
+    document.getElementById('userPass').value = '';
+    document.getElementById('userPhrase').value = user.phrase || '';
+    document.getElementById('userRole').value = user.role || 'user';
+    document.getElementById('editUserId').value = editIdx;
+  } else {
+    document.getElementById('userModalTitle').textContent = 'ADD USER';
+    document.getElementById('userName').value = '';
+    document.getElementById('userEmail').value = '';
+    document.getElementById('userPass').value = '';
+    document.getElementById('userPhrase').value = '';
+    document.getElementById('userRole').value = 'user';
+    document.getElementById('editUserId').value = '';
+  }
+  document.getElementById('userModal').classList.add('show');
+}
+
+function closeUserModal() { document.getElementById('userModal').classList.remove('show'); }
+
+function saveUser() {
+  const name = document.getElementById('userName').value.trim().toUpperCase();
+  const email = document.getElementById('userEmail').value.trim();
+  const pass = document.getElementById('userPass').value;
+  let phrase = document.getElementById('userPhrase').value.trim();
+  const role = document.getElementById('userRole').value;
+  const editIdx = document.getElementById('editUserId').value;
+  
+  if (!name || !email) {
+    showNotification('Name and email required', 'error');
+    return;
+  }
+  
+  if (!phrase) {
+    const phrases = ["CYBERVERSE PROTOCOL", "SHADOW NETWORK", "GHOST PROTOCOL", "DARK MATRIX", "NEON CIPHER"];
+    phrase = phrases[Math.floor(Math.random() * phrases.length)] + " " + Math.floor(Math.random() * 100);
+  }
+  
+  if (editIdx !== '') {
+    const idx = parseInt(editIdx);
+    if (users && users[idx]) {
+      users[idx] = { ...users[idx], name, email, phrase, role };
+      if (pass) users[idx].pass = pass;
+      showNotification('User updated successfully');
+    }
+  } else {
+    if (!pass) {
+      showNotification('Password required for new user', 'error');
+      return;
+    }
+    if (users && users.some(u => u && u.email === email)) {
+      showNotification('Email already exists', 'error');
+      return;
+    }
+    users.push({ id: Date.now(), name, email, pass, phrase, role, xp: 0, missions: 0 });
+    showNotification('User added successfully');
+  }
+  saveUsers();
+  updateUsersTable();
+  updateOverview();
+  updateAnalytics();
+  closeUserModal();
+}
+
+function editUser(idx) { openUserModal(idx); }
+
+function deleteUser(idx) {
+  if (users && users[idx] && confirm(`Delete user "${users[idx].name}"?`)) {
+    users.splice(idx, 1);
+    saveUsers();
+    updateUsersTable();
+    updateOverview();
+    updateAnalytics();
+    showNotification('User deleted');
+  }
+}
+
+// ========== MISSION CRUD ==========
+let currentEditMissionIdx = null;
+
+function openMissionModal(editIdx = null) {
+  currentEditMissionIdx = editIdx;
+  if (editIdx !== null && missions && missions[editIdx]) {
+    const mission = missions[editIdx];
+    document.getElementById('missionModalTitle').textContent = 'EDIT MISSION';
+    document.getElementById('missionTitle').value = mission.title || '';
+    document.getElementById('missionDifficulty').value = mission.difficulty || 'easy';
+    document.getElementById('missionXP').value = mission.xp || 0;
+    document.getElementById('missionDesc').value = mission.desc || '';
+    document.getElementById('editMissionId').value = editIdx;
+  } else {
+    document.getElementById('missionModalTitle').textContent = 'ADD MISSION';
+    document.getElementById('missionTitle').value = '';
+    document.getElementById('missionDifficulty').value = 'easy';
+    document.getElementById('missionXP').value = '';
+    document.getElementById('missionDesc').value = '';
+    document.getElementById('editMissionId').value = '';
+  }
+  document.getElementById('missionModal').classList.add('show');
+}
+
+function closeMissionModal() { document.getElementById('missionModal').classList.remove('show'); }
+
+function saveMission() {
+  const title = document.getElementById('missionTitle').value.trim();
+  const difficulty = document.getElementById('missionDifficulty').value;
+  const xp = parseInt(document.getElementById('missionXP').value);
+  const desc = document.getElementById('missionDesc').value.trim();
+  const editIdx = document.getElementById('editMissionId').value;
+  
+  if (!title || !xp) {
+    showNotification('Title and XP reward required', 'error');
+    return;
+  }
+  
+  if (editIdx !== '') {
+    const idx = parseInt(editIdx);
+    if (missions && missions[idx]) {
+      missions[idx] = { ...missions[idx], title, difficulty, xp, desc };
+      showNotification('Mission updated successfully');
+    }
+  } else {
+    const newId = missions.length > 0 ? Math.max(...missions.map(m => m.id), 0) + 1 : 1;
+    missions.push({ id: newId, title, difficulty, xp, desc });
+    showNotification('Mission added successfully');
+  }
+  saveMissions();
+  updateMissionsTable();
+  updateOverview();
+  closeMissionModal();
+}
+
+function editMission(idx) { openMissionModal(idx); }
+
+function deleteMission(idx) {
+  if (missions && missions[idx] && confirm(`Delete mission "${missions[idx].title}"?`)) {
+    missions.splice(idx, 1);
+    saveMissions();
+    updateMissionsTable();
+    updateOverview();
+    showNotification('Mission deleted');
+  }
+}
+
+// ========== UI HELPERS ==========
+function showPanel(panelId) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  const targetPanel = document.getElementById(`panel-${panelId}`);
+  if (targetPanel) targetPanel.classList.add('active');
+  
+  const items = document.querySelectorAll('.sidebar-item');
+  for (let item of items) {
+    if (item.textContent.toLowerCase().includes(panelId.toLowerCase().substring(0, 5))) {
+      item.classList.add('active');
+      break;
+    }
+  }
+  
+  if (panelId === 'overview') updateOverview();
+  if (panelId === 'users') updateUsersTable();
+  if (panelId === 'missions') updateMissionsTable();
+  if (panelId === 'analytics') updateAnalytics();
+  if (panelId === 'terminal') initTerminal();
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+}
+
+function logout() {
+  sessionStorage.removeItem('currentUser');
+  window.location.href = 'index.html';
+}
+
+function startClock() {
+  function tick() {
+    const clock = document.getElementById('clockDisplay');
+    if (clock) clock.textContent = new Date().toLocaleTimeString();
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ========== INITIALIZE ==========
+function init() {
+  loadData();
+  updateOverview();
+  updateUsersTable();
+  updateMissionsTable();
+  updateAnalytics();
+  startClock();
+  initMatrixBackground();
+  initTerminal();
+  
+  const termInput = document.getElementById('terminalInput');
+  if (termInput) {
+    termInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') executeCommand();
+    });
+    termInput.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (historyIndex < terminalHistory.length - 1) {
+          historyIndex++;
+          termInput.value = terminalHistory[terminalHistory.length - 1 - historyIndex];
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (historyIndex > 0) {
+          historyIndex--;
+          termInput.value = terminalHistory[terminalHistory.length - 1 - historyIndex];
+        } else if (historyIndex === 0) {
+          historyIndex = -1;
+          termInput.value = '';
+        }
+      }
+    });
+  }
+  
+  document.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+      if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+        closeSidebar();
+      }
+    }
+  });
+}
+
+document.getElementById('logoutBtn')?.addEventListener('click', logout);
+document.getElementById('mobileMenuBtn')?.addEventListener('click', toggleSidebar);
+
+init();
+</script>
+</body>
+</html>
