@@ -3,1373 +3,824 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>CyberVerse — 3D Avatar + Terminal | AI Cybersecurity Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-<!-- xterm.js CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+<title>CyberVerse — AI Cybersecurity Platform | Secure Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-:root {
-  --green: #00ff9d;
-  --green2: #00ffc8;
-  --red: #ff4d6d;
-  --blue: #00cfff;
-  --bg: #050a0f;
-  --bg2: #080f15;
-  --border: rgba(0, 255, 157, 0.15);
-  --border2: rgba(0, 255, 157, 0.3);
-  --muted: rgba(255, 255, 255, 0.35);
-}
-
-body {
-  background: var(--bg);
-  color: var(--green);
-  font-family: 'Share Tech Mono', monospace;
-  overflow-x: hidden;
-  min-height: 100vh;
-}
-
-/* Animated Background */
-#bg-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  opacity: 0.15;
-  pointer-events: none;
-}
-
-.grid-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    linear-gradient(rgba(0, 255, 157, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 157, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.scanline {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px);
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* Main Container */
-.main-container {
-  position: relative;
-  z-index: 10;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Navbar */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(5, 10, 15, 0.8);
-  backdrop-filter: blur(10px);
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.logo {
-  font-family: 'Orbitron', monospace;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: 4px;
-  color: #fff;
-}
-
-.logo span {
-  color: var(--green);
-}
-
-.nav-links {
-  display: flex;
-  gap: 30px;
-}
-
-.nav-links a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 12px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  transition: color 0.3s;
-  cursor: pointer;
-}
-
-.nav-links a:hover, .nav-links a.active {
-  color: var(--green);
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.agent-name {
-  font-size: 12px;
-  color: var(--muted);
-  letter-spacing: 1px;
-}
-
-.agent-name span {
-  color: var(--green);
-}
-
-.logout-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--red);
-  padding: 6px 16px;
-  cursor: pointer;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 2px;
-  transition: all 0.3s;
-}
-
-.logout-btn:hover {
-  background: rgba(255, 77, 109, 0.1);
-  border-color: var(--red);
-}
-
-/* Hero Section with 3D Avatar */
-.hero-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  padding: 60px 40px;
-  align-items: center;
-}
-
-.hero-left h1 {
-  font-family: 'Orbitron', monospace;
-  font-size: 48px;
-  font-weight: 900;
-  line-height: 1.2;
-  color: #fff;
-  margin-bottom: 20px;
-}
-
-.hero-left h1 span {
-  color: var(--green);
-}
-
-.hero-left p {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.8;
-  margin-bottom: 30px;
-  max-width: 500px;
-}
-
-.cta-buttons {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.btn-primary {
-  background: var(--green);
-  color: #050a0f;
-  border: none;
-  padding: 12px 28px;
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.3s;
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
-}
-
-.btn-primary:hover {
-  background: var(--green2);
-  transform: translateY(-2px);
-}
-
-.btn-secondary {
-  background: transparent;
-  border: 1px solid var(--border2);
-  color: var(--green);
-  padding: 12px 28px;
-  font-family: 'Orbitron', monospace;
-  font-size: 12px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.3s;
-}
-
-.btn-secondary:hover {
-  border-color: var(--green);
-  background: rgba(0, 255, 157, 0.05);
-}
-
-/* 3D Avatar Container */
-.avatar-container {
-  position: relative;
-  width: 100%;
-  height: 400px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#avatar-canvas {
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.avatar-status {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7);
-  padding: 5px 15px;
-  border-radius: 20px;
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--green);
-  border: 1px solid var(--border2);
-}
-
-/* Terminal Section */
-.terminal-section {
-  padding: 40px;
-  background: rgba(0, 0, 0, 0.5);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-.terminal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.terminal-header h2 {
-  font-family: 'Orbitron', monospace;
-  font-size: 18px;
-  letter-spacing: 2px;
-}
-
-.terminal-header h2 span {
-  color: var(--green);
-}
-
-.terminal-controls {
-  display: flex;
-  gap: 10px;
-}
-
-.term-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  padding: 5px 15px;
-  cursor: pointer;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1px;
-  transition: all 0.3s;
-}
-
-.term-btn:hover {
-  color: var(--green);
-  border-color: var(--border2);
-}
-
-#terminal {
-  height: 400px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/* Commands Help */
-.commands-help {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 15px;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 8px;
-}
-
-.cmd-badge {
-  background: rgba(0, 255, 157, 0.1);
-  border: 1px solid var(--border);
-  padding: 4px 10px;
-  font-size: 9px;
-  font-family: 'Share Tech Mono', monospace;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.3s;
-  border-radius: 4px;
-}
-
-.cmd-badge:hover {
-  color: var(--green);
-  border-color: var(--border2);
-}
-
-/* Stats Section */
-.stats-section {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  padding: 40px;
-  background: var(--bg2);
-}
-
-.stat-card {
-  text-align: center;
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  transition: all 0.3s;
-}
-
-.stat-card:hover {
-  border-color: var(--border2);
-  transform: translateY(-3px);
-}
-
-.stat-value {
-  font-family: 'Orbitron', monospace;
-  font-size: 36px;
-  font-weight: 700;
-  color: var(--green);
-  margin-bottom: 8px;
-}
-
-.stat-label {
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-/* Login Modal */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.95);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal.show {
-  display: flex;
-}
-
-.modal-content {
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  max-width: 450px;
-  width: 90%;
-  padding: 40px;
-  border-radius: 16px;
-  animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.modal-title {
-  font-family: 'Orbitron', monospace;
-  font-size: 24px;
-  text-align: center;
-  margin-bottom: 8px;
-  color: #fff;
-}
-
-.modal-sub {
-  font-size: 11px;
-  text-align: center;
-  color: var(--muted);
-  margin-bottom: 30px;
-  letter-spacing: 2px;
-}
-
-.input-group {
-  margin-bottom: 20px;
-}
-
-.input-label {
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: rgba(0, 255, 157, 0.6);
-  margin-bottom: 6px;
-  display: block;
-  text-transform: uppercase;
-}
-
-.input-field {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #fff;
-  padding: 12px 14px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
-  border-radius: 8px;
-}
-
-.input-field:focus {
-  border-color: var(--border2);
-  outline: none;
-}
-
-.voice-btn {
-  width: 100%;
-  padding: 14px;
-  background: rgba(0, 255, 157, 0.05);
-  border: 1px solid var(--border2);
-  color: var(--green);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  border-radius: 50px;
-  transition: all 0.3s;
-}
-
-.voice-btn:hover {
-  background: rgba(0, 255, 157, 0.1);
-}
-
-.voice-btn.listening {
-  border-color: var(--red);
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 77, 109, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(255, 77, 109, 0); }
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin: 20px 0;
-  color: var(--muted);
-  font-size: 10px;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.modal-footer {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.modal-link {
-  font-size: 10px;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.modal-link:hover {
-  color: var(--green);
-}
-
-.msg-box {
-  margin-top: 15px;
-  padding: 10px;
-  font-size: 11px;
-  border-left: 2px solid var(--green);
-  background: rgba(0, 255, 157, 0.05);
-  display: none;
-  border-radius: 4px;
-}
-
-.msg-box.show {
-  display: block;
-}
-
-.msg-box.error {
-  border-color: var(--red);
-  color: var(--red);
-  background: rgba(255, 77, 109, 0.05);
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .hero-section {
-    grid-template-columns: 1fr;
-    text-align: center;
-    padding: 40px 20px;
-  }
-  
-  .hero-left p {
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .cta-buttons {
-    justify-content: center;
-  }
-  
-  .stats-section {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 30px 20px;
-  }
-  
-  .navbar {
-    padding: 15px 20px;
-  }
-  
-  .nav-links {
-    gap: 15px;
-  }
-  
-  .terminal-section {
-    padding: 30px 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .stats-section {
-    grid-template-columns: 1fr;
-  }
-  
-  .hero-left h1 {
-    font-size: 32px;
-  }
-  
-  .navbar {
-    flex-direction: column;
-  }
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--green:#00ff9d;--green2:#00ffc8;--red:#ff4d6d;--blue:#00cfff;--gold:#ffd700;--bg:#050a0f;--bg2:#080f15;--border:rgba(0,255,157,0.15);--border2:rgba(0,255,157,0.3);--muted:rgba(255,255,255,0.35);}
+body{background:var(--bg);color:var(--green);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+#canvas-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.1;pointer-events:none;}
+.grid-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(0,255,157,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,157,0.02) 1px,transparent 1px);background-size:40px 40px;z-index:1;pointer-events:none;}
+.scanline{position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);z-index:2;pointer-events:none;}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeInScale{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes wave-anim{0%,100%{height:4px;}50%{height:18px;}}
+@keyframes neon-pulse{0%,100%{text-shadow:0 0 10px rgba(0,255,157,.5),0 0 20px rgba(0,255,157,.3);}50%{text-shadow:0 0 20px rgba(0,255,157,.8),0 0 40px rgba(0,255,157,.5);}}
+@keyframes listening-pulse{0%{box-shadow:0 0 0 0 rgba(255,77,109,0.4);}70%{box-shadow:0 0 0 15px rgba(255,77,109,0);}100%{box-shadow:0 0 0 0 rgba(255,77,109,0);}}
+@keyframes float{0%,100%{transform:translateY(0px);}50%{transform:translateY(-10px);}}
+@keyframes glow-pulse{0%,100%{filter:drop-shadow(0 0 5px rgba(0,255,157,0.3));}50%{filter:drop-shadow(0 0 20px rgba(0,255,157,0.8));}}
+@keyframes rotate-slow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes borderGlow{0%,100%{border-color:rgba(0,255,157,0.3);box-shadow:0 0 5px rgba(0,255,157,0.2);}50%{border-color:rgba(0,255,157,0.8);box-shadow:0 0 20px rgba(0,255,157,0.5);}}
+@keyframes shake{0%,100%{transform:translateX(0);}10%,30%,50%,70%,90%{transform:translateX(-3px);}20%,40%,60%,80%{transform:translateX(3px);}}
+@keyframes successPulse{0%{transform:scale(1);opacity:1;}50%{transform:scale(1.05);opacity:0.8;}100%{transform:scale(1);opacity:1;}}
+@keyframes errorShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+@keyframes particleFloat{0%{transform:translateY(0) rotate(0deg);opacity:0;}50%{opacity:1;}100%{transform:translateY(-100px) rotate(360deg);opacity:0;}}
+
+.page{display:none;position:relative;z-index:10;min-height:100vh;animation:fadeIn .5s ease;}
+.page.active{display:block;}
+
+/* Cinematic Intro */
+.cinematic{position:fixed;inset:0;background:radial-gradient(circle at center,#0a0f1a,#020408);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;animation:fadeOut 1s ease forwards 5s;pointer-events:none;}
+@keyframes fadeOut{0%{opacity:1;visibility:visible;}100%{opacity:0;visibility:hidden;}}
+.cinematic-logo{font-family:'Orbitron',monospace;font-size:72px;font-weight:900;letter-spacing:12px;color:#fff;animation:neon-pulse 2s infinite, float 3s ease-in-out infinite;}
+.cinematic-logo span{color:var(--green);}
+.cinematic-sub{font-size:14px;letter-spacing:6px;color:var(--muted);animation:blink 2s infinite;}
+.cinematic-bar{width:400px;height:2px;background:rgba(0,255,157,0.2);position:relative;overflow:hidden;border-radius:2px;}
+.cinematic-progress{position:absolute;left:0;top:0;height:100%;width:0%;background:var(--green);animation:bootLoad 4s linear forwards;border-radius:2px;}
+@keyframes bootLoad{0%{width:0%;}100%{width:100%;}}
+
+/* Auth Cards */
+.auth-container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;animation:slideUp 0.6s ease;}
+.auth-card{background:rgba(5,10,15,0.92);backdrop-filter:blur(20px);border:1px solid var(--border);max-width:480px;width:100%;padding:40px;position:relative;border-radius:20px;animation:fadeInScale 0.5s ease;transition:all 0.3s;}
+.auth-card:hover{border-color:var(--border2);box-shadow:0 0 30px rgba(0,255,157,0.1);}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--green),var(--blue),var(--purple),transparent);animation:borderGlow 3s infinite;}
+.auth-avatar{width:64px;height:64px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 20px;background:rgba(0,255,157,0.08);animation:glow-pulse 2s infinite, float 3s ease-in-out infinite;}
+.auth-title{font-family:'Orbitron',monospace;font-size:24px;letter-spacing:4px;color:#fff;text-align:center;margin-bottom:8px;animation:fadeIn 0.5s;}
+.auth-sub{font-size:11px;letter-spacing:2px;color:var(--muted);text-align:center;margin-bottom:30px;animation:fadeIn 0.6s;}
+.input-group{margin-bottom:20px;animation:fadeIn 0.7s;}
+.input-label{font-size:9px;letter-spacing:2px;color:rgba(0,255,157,0.6);margin-bottom:6px;display:block;text-transform:uppercase;transition:color 0.3s;}
+.input-field{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;padding:12px 14px;transition:all 0.3s;border-radius:8px;}
+.input-field:focus{border-color:var(--border2);outline:none;background:rgba(0,255,157,0.02);transform:translateX(5px);}
+.input-field.error{animation:errorShake 0.3s ease;border-color:var(--red);}
+.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg, var(--green), var(--green2));color:#050a0f;border:none;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:3px;cursor:pointer;text-transform:uppercase;transition:all 0.3s;border-radius:8px;position:relative;overflow:hidden;}
+.btn-primary:hover{transform:translateY(-2px);filter:brightness(1.1);box-shadow:0 5px 20px rgba(0,255,157,0.3);}
+.btn-primary:active{transform:translateY(0);}
+.btn-primary::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,0.5);transform:translate(-50%,-50%);transition:width 0.6s, height 0.6s;}
+.btn-primary:active::after{width:300px;height:300px;opacity:0;}
+.auth-link{text-align:center;margin-top:20px;font-size:10px;color:var(--muted);cursor:pointer;letter-spacing:1px;transition:all 0.3s;display:inline-block;width:100%;}
+.auth-link:hover{color:var(--green);transform:translateX(5px);}
+.msg-box{margin-top:16px;padding:12px;font-size:11px;border-left:3px solid var(--green);background:rgba(0,255,157,0.05);display:none;animation:fadeIn 0.3s;border-radius:4px;}
+.msg-box.show{display:block;}
+.msg-box.error{border-color:var(--red);color:var(--red);background:rgba(255,77,109,0.05);animation:errorShake 0.3s ease;}
+.msg-box.success{border-color:var(--green);color:var(--green);animation:successPulse 0.5s ease;}
+
+/* Voice Button */
+.voice-btn{width:100%;padding:16px;background:linear-gradient(135deg, rgba(0,255,157,0.08), rgba(0,255,157,0.02));border:2px solid var(--border2);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.3s;margin-bottom:20px;border-radius:50px;position:relative;overflow:hidden;}
+.voice-btn:hover{background:rgba(0,255,157,0.12);border-color:var(--green);transform:scale(1.02);}
+.voice-btn.listening{border-color:var(--red);animation:listening-pulse 1.5s infinite;background:rgba(255,77,109,0.08);}
+.voice-icon{width:32px;height:32px;border-radius:50%;border:1px solid rgba(0,255,157,.5);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all 0.3s;}
+.voice-btn.listening .voice-icon{background:rgba(255,77,109,0.2);border-color:var(--red);animation:blink 0.5s infinite;}
+.voice-waves{display:flex;gap:3px;align-items:center;height:24px;margin-left:auto;}
+.wave{width:3px;background:var(--red);border-radius:2px;animation:wave-anim 0.6s ease-in-out infinite;}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:10px;letter-spacing:2px;animation:fadeIn 0.8s;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg, transparent, var(--border), transparent);}
+.phrase-display{font-family:'Orbitron',monospace;font-size:16px;color:var(--green);text-align:center;padding:15px;background:rgba(0,255,157,0.08);border:1px solid var(--border2);margin:15px 0;border-radius:12px;animation:glow-pulse 2s infinite;}
+
+/* Registration Steps */
+.reg-step{display:none;animation:fadeInScale 0.4s ease;}
+.reg-step.active{display:block;}
+.pw-strength{display:flex;gap:4px;margin-top:6px;}
+.pw-block{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;transition:all 0.3s;}
+.pw-block.weak{background:var(--red);animation:glow-pulse 1s infinite;}
+.pw-block.med{background:#ffbd2e;}
+.pw-block.strong{background:var(--green);}
+
+.notification-stack{position:fixed;bottom:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:8px;}
+.notification{background:var(--bg2);border-left:3px solid var(--green);padding:12px 18px;font-size:11px;color:var(--green);animation:slideIn 0.3s;max-width:300px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+.notification.error{border-color:var(--red);color:var(--red);}
+@keyframes slideIn{from{opacity:0;transform:translateX(100%);}to{opacity:1;transform:translateX(0);}}
+
+.voice-status{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:15px;padding:8px;background:rgba(0,255,157,0.05);border-radius:12px;font-size:10px;animation:fadeIn 0.5s;}
+.voice-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:all 0.3s;}
+.voice-dot.active{background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 1s infinite;}
+.voice-dot.listening{background:var(--red);box-shadow:0 0 10px var(--red);animation:listening-pulse 1s infinite;}
+
+/* Particles Animation Container */
+.particles-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3;overflow:hidden;}
+.particle{position:absolute;width:4px;height:4px;background:var(--green);border-radius:50%;opacity:0;animation:particleFloat 3s ease-in-out infinite;}
+
+@media(max-width:900px){
+  .cinematic-logo{font-size:36px;letter-spacing:6px;}
+  .cinematic-bar{width:280px;}
+  .auth-card{padding:30px 25px;}
 }
 </style>
 </head>
 <body>
-<canvas id="bg-canvas"></canvas>
+<canvas id="canvas-bg"></canvas>
 <div class="grid-overlay"></div>
 <div class="scanline"></div>
+<div class="particles-container" id="particlesContainer"></div>
+<div class="notification-stack" id="notificationStack"></div>
 
-<div class="main-container">
-  <!-- Navbar -->
-  <div class="navbar">
-    <div class="logo">CYBER<span>VERSE</span></div>
-    <div class="nav-links">
-      <a class="active" onclick="scrollToSection('home')">HOME</a>
-      <a onclick="scrollToSection('terminal')">TERMINAL</a>
-      <a onclick="scrollToSection('features')">FEATURES</a>
-    </div>
-    <div class="user-info">
-      <div class="agent-name" id="agentNameDisplay">AGENT: <span>GUEST</span></div>
-      <button class="logout-btn" id="logoutBtn" style="display:none;" onclick="logout()">LOGOUT</button>
-      <button class="btn-primary" id="loginBtn" style="padding:6px 16px; font-size:10px;" onclick="showLoginModal()">LOGIN</button>
-    </div>
-  </div>
+<!-- Cinematic Intro -->
+<div class="cinematic" id="cinematic">
+  <div class="cinematic-logo">CYBER<span>VERSE</span></div>
+  <div class="cinematic-sub">// AI-POWERED CYBERSECURITY SIMULATION</div>
+  <div class="cinematic-bar"><div class="cinematic-progress"></div></div>
+  <div class="cinematic-sub" style="font-size:10px;">INITIALIZING QUANTUM ENCRYPTION...</div>
+</div>
 
-  <!-- Hero Section with 3D Avatar -->
-  <div class="hero-section" id="home">
-    <div class="hero-left">
-      <h1>HACK.<br>INVESTIGATE.<br><span>DOMINATE.</span></h1>
-      <p>AI-powered cybersecurity simulation platform with real OSINT tools, voice authentication, and gamified missions. Train like a real agent — all in your browser.</p>
-      <div class="cta-buttons">
-        <button class="btn-primary" onclick="showLoginModal()">INITIATE LOGIN</button>
-        <button class="btn-secondary" onclick="scrollToSection('terminal')">LAUNCH TERMINAL</button>
+<!-- Registration Page -->
+<div class="page active" id="page-register">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-avatar">🤖</div>
+      <div class="auth-title">REGISTER</div>
+      <div class="auth-sub">// CREATE YOUR AGENT PROFILE</div>
+      <div id="regMsg" class="msg-box"></div>
+      
+      <div class="reg-step active" id="step-1">
+        <div class="input-group">
+          <label class="input-label">AGENT CODE NAME</label>
+          <input type="text" class="input-field" id="regName" placeholder="NIGHT_HACKER">
+        </div>
+        <div class="input-group">
+          <label class="input-label">EMAIL ADDRESS</label>
+          <input type="email" class="input-field" id="regEmail" placeholder="agent@cyberverse.io">
+        </div>
+        <div class="input-group">
+          <label class="input-label">LOGIN PASSWORD</label>
+          <input type="password" class="input-field" id="regPass" placeholder="Min 6 characters">
+          <div class="pw-strength"><div class="pw-block" id="pw1"></div><div class="pw-block" id="pw2"></div><div class="pw-block" id="pw3"></div></div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">CONFIRM PASSWORD</label>
+          <input type="password" class="input-field" id="regConfirm">
+        </div>
+        <button class="btn-primary" id="nextToVoiceBtn">CONTINUE → SET VOICE</button>
       </div>
-    </div>
-    <div class="avatar-container">
-      <canvas id="avatar-canvas"></canvas>
-      <div class="avatar-status" id="avatarStatus">🟢 AVATAR ONLINE</div>
-    </div>
-  </div>
-
-  <!-- Terminal Section -->
-  <div class="terminal-section" id="terminal">
-    <div class="terminal-header">
-      <h2>CYBER<span>VERSE</span> TERMINAL v3.0</h2>
-      <div class="terminal-controls">
-        <button class="term-btn" onclick="clearTerminal()">CLEAR</button>
-        <button class="term-btn" onclick="showHelp()">HELP</button>
+      
+      <div class="reg-step" id="step-2">
+        <div class="auth-sub" style="margin-bottom:15px;">// YOUR UNIQUE VOICE AUTHENTICATION KEY</div>
+        <div class="phrase-display" id="voicePhraseDisplay">CYBERVERSE PROTOCOL ALPHA</div>
+        <div class="input-group">
+          <label class="input-label">OR CREATE YOUR OWN</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" class="input-field" id="customPhrase" placeholder="Type your own passphrase...">
+            <button id="randomPhraseBtn" style="background:transparent;border:1px solid var(--border);color:var(--green);padding:0 15px;cursor:pointer;border-radius:8px;">RANDOM</button>
+          </div>
+        </div>
+        <button class="btn-primary" id="recordVoiceBtn">🎤 RECORD VOICE →</button>
+        <button class="btn-primary" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:10px;" id="backToStep1">← BACK</button>
       </div>
-    </div>
-    <div id="terminal"></div>
-    <div class="commands-help">
-      <span class="cmd-badge" onclick="runCommand('help')">help</span>
-      <span class="cmd-badge" onclick="runCommand('scan domain example.com')">scan domain</span>
-      <span class="cmd-badge" onclick="runCommand('email_lookup test@example.com')">email lookup</span>
-      <span class="cmd-badge" onclick="runCommand('username_search agent007')">username search</span>
-      <span class="cmd-badge" onclick="runCommand('whois google.com')">whois</span>
-      <span class="cmd-badge" onclick="runCommand('privacy_score')">privacy score</span>
-      <span class="cmd-badge" onclick="runCommand('clear')">clear</span>
-    </div>
-  </div>
-
-  <!-- Stats Section -->
-  <div class="stats-section" id="features">
-    <div class="stat-card">
-      <div class="stat-value" id="statUsers">2.4K</div>
-      <div class="stat-label">ACTIVE AGENTS</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statCases">847</div>
-      <div class="stat-label">CASES SOLVED</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statUptime">99.2%</div>
-      <div class="stat-label">UPTIME</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statXP">12.4K</div>
-      <div class="stat-label">TOTAL XP</div>
+      
+      <div class="reg-step" id="step-3">
+        <div class="auth-sub" style="margin-bottom:15px;">// SPEAK YOUR PASSPHRASE CLEARLY</div>
+        <div class="phrase-display" id="recordPhraseDisplay"></div>
+        <button class="voice-btn" id="startRecordBtn" style="justify-content:center;border-radius:12px;">
+          <span class="voice-icon">🎤</span>
+          <span>START RECORDING</span>
+          <div class="voice-waves" id="recordWaves" style="display:none;">
+            <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+          </div>
+        </button>
+        <div id="recordResult" class="msg-box"></div>
+        <button class="btn-primary" id="confirmVoiceBtn" style="display:none;">✓ CONFIRM & COMPLETE</button>
+        <button class="btn-primary" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:10px;" id="backToStep2">← BACK</button>
+      </div>
+      
+      <div class="auth-link" id="gotoLoginLink">ALREADY HAVE ACCESS? → LOGIN</div>
     </div>
   </div>
 </div>
 
-<!-- Login Modal -->
-<div class="modal" id="loginModal">
-  <div class="modal-content">
-    <div class="modal-title">IDENTITY VERIFICATION</div>
-    <div class="modal-sub">// AI VOICE AUTHENTICATION SYSTEM</div>
-    
-    <button class="voice-btn" id="voiceAuthBtn">
-      <span>🎤</span> VOICE AUTHENTICATION
-      <span class="voice-waves" style="display:none;">🔴</span>
-    </button>
-    
-    <div id="loginMsg" class="msg-box"></div>
-    <div class="divider">OR</div>
-    
-    <div class="input-group">
-      <label class="input-label">AGENT ID / EMAIL</label>
-      <input type="text" class="input-field" id="loginEmail" placeholder="agent@cyberverse.io">
-    </div>
-    <div class="input-group">
-      <label class="input-label">PASSWORD</label>
-      <input type="password" class="input-field" id="loginPass" placeholder="Enter your password">
-    </div>
-    
-    <button class="btn-primary" onclick="manualLogin()" style="width:100%; margin-bottom:10px;">AUTHENTICATE →</button>
-    <div class="modal-footer">
-      <span class="modal-link" onclick="showRegisterModal()">NO PROFILE? → REGISTER</span>
-    </div>
-  </div>
-</div>
-
-<!-- Register Modal -->
-<div class="modal" id="registerModal">
-  <div class="modal-content">
-    <div class="modal-title">REGISTER</div>
-    <div class="modal-sub">// CREATE YOUR AGENT PROFILE</div>
-    
-    <div id="regMsg" class="msg-box"></div>
-    
-    <div class="input-group">
-      <label class="input-label">AGENT CODE NAME</label>
-      <input type="text" class="input-field" id="regName" placeholder="NIGHT_HACKER">
-    </div>
-    <div class="input-group">
-      <label class="input-label">EMAIL ADDRESS</label>
-      <input type="email" class="input-field" id="regEmail" placeholder="agent@cyberverse.io">
-    </div>
-    <div class="input-group">
-      <label class="input-label">PASSWORD</label>
-      <input type="password" class="input-field" id="regPass" placeholder="Min 6 characters">
-    </div>
-    <div class="input-group">
-      <label class="input-label">VOICE PASSPHRASE</label>
-      <input type="text" class="input-field" id="regPhrase" placeholder="Your voice passphrase for login">
-      <div style="font-size:9px; color:var(--muted); margin-top:4px;">You'll speak this to login with voice</div>
-    </div>
-    
-    <button class="btn-primary" onclick="register()" style="width:100%;">CREATE ACCOUNT →</button>
-    <div class="modal-footer">
-      <span class="modal-link" onclick="showLoginModal()">ALREADY HAVE ACCESS? → LOGIN</span>
+<!-- Login Page -->
+<div class="page" id="page-login">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-avatar">🎤</div>
+      <div class="auth-title">IDENTITY VERIFICATION</div>
+      <div class="auth-sub">// AI VOICE AUTHENTICATION SYSTEM</div>
+      
+      <div class="voice-status" id="voiceStatusIndicator">
+        <div class="voice-dot" id="voiceDot"></div>
+        <span id="voiceStatusText">Ready for voice authentication</span>
+      </div>
+      
+      <button class="voice-btn" id="voiceLoginBtn">
+        <div class="voice-icon">🎤</div>
+        <div style="flex:1;text-align:left;">
+          <div>VOICE AUTHENTICATION</div>
+          <div style="font-size:9px;color:rgba(0,255,157,.4);margin-top:2px;" id="voiceSubtext">CLICK AND SPEAK YOUR PASSPHRASE</div>
+        </div>
+        <div class="voice-waves" id="loginWaves" style="display:none;">
+          <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+        </div>
+      </button>
+      
+      <div id="loginMsg" class="msg-box"></div>
+      <div class="divider">OR</div>
+      
+      <div class="input-group">
+        <label class="input-label">AGENT ID / EMAIL</label>
+        <input type="text" class="input-field" id="loginEmail" placeholder="Enter your email">
+      </div>
+      <div class="input-group">
+        <label class="input-label">PASSWORD</label>
+        <input type="password" class="input-field" id="loginPass" placeholder="Enter your password">
+      </div>
+      
+      <button class="btn-primary" id="manualLoginBtn">AUTHENTICATE →</button>
+      <div class="auth-link" id="gotoRegisterLink">NO PROFILE? → REGISTER NOW</div>
     </div>
   </div>
 </div>
 
-<!-- Import Three.js and xterm.js -->
-<script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
-    }
+<script>
+// ========== GLOBAL STATE ==========
+let users = [];
+let isListening = false;
+let recognition = null;
+let recordedVoice = false;
+let recordingActive = false;
+let newUserData = { name: "", email: "", pass: "", phrase: "" };
+
+// Helper function to normalize text safely
+function normalizeText(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text.toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
+// Create floating particles
+function createParticles() {
+  const container = document.getElementById('particlesContainer');
+  for (let i = 0; i < 50; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 5 + 's';
+    particle.style.animationDuration = 2 + Math.random() * 3 + 's';
+    particle.style.width = 2 + Math.random() * 4 + 'px';
+    particle.style.height = particle.style.width;
+    container.appendChild(particle);
   }
-</script>
-<script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+}
 
-<script type="module">
-  import * as THREE from 'three';
+// ========== INITIALIZATION ==========
+function initializeApp() {
+  loadUsersFromLocal();
+  setupEventListeners();
+  createParticles();
+  console.log("CyberVerse initialized with localStorage");
+}
 
-  // ========== THREE.JS 3D AVATAR ==========
-  function init3DAvatar() {
-    const canvas = document.getElementById('avatar-canvas');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
-    
-    function resize() {
-      const container = canvas.parentElement;
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      renderer.setSize(width, height);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-    }
-    
-    resize();
-    window.addEventListener('resize', resize);
-    
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0x222222);
-    scene.add(ambientLight);
-    
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1);
-    mainLight.position.set(2, 5, 3);
-    scene.add(mainLight);
-    
-    const fillLight = new THREE.PointLight(0x00ff9d, 0.3);
-    fillLight.position.set(-2, 1, 2);
-    scene.add(fillLight);
-    
-    const backLight = new THREE.PointLight(0x00ff9d, 0.2);
-    backLight.position.set(0, 2, -3);
-    scene.add(backLight);
-    
-    // Create Avatar Group
-    const avatarGroup = new THREE.Group();
-    
-    // Head (Sphere)
-    const headGeometry = new THREE.SphereGeometry(0.8, 64, 64);
-    const headMaterial = new THREE.MeshStandardMaterial({ color: 0x1a2e20, metalness: 0.7, roughness: 0.3, emissive: 0x0a1a12 });
-    const head = new THREE.Mesh(headGeometry, headMaterial);
-    avatarGroup.add(head);
-    
-    // Visor (Ellipse)
-    const visorGeometry = new THREE.SphereGeometry(0.55, 32, 32);
-    const visorMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff9d, emissive: 0x00ff9d, emissiveIntensity: 0.3, transparent: true, opacity: 0.8 });
-    const visor = new THREE.Mesh(visorGeometry, visorMaterial);
-    visor.position.set(0, 0.1, 0.75);
-    avatarGroup.add(visor);
-    
-    // Eyes (LED strips)
-    const eyeLGeometry = new THREE.BoxGeometry(0.25, 0.1, 0.05);
-    const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff9d, emissive: 0x00ff9d, emissiveIntensity: 0.8 });
-    const leftEye = new THREE.Mesh(eyeLGeometry, eyeMaterial);
-    leftEye.position.set(-0.25, 0.2, 0.85);
-    avatarGroup.add(leftEye);
-    
-    const rightEye = new THREE.Mesh(eyeLGeometry, eyeMaterial);
-    rightEye.position.set(0.25, 0.2, 0.85);
-    avatarGroup.add(rightEye);
-    
-    // Antenna
-    const antennaGeometry = new THREE.CylinderGeometry(0.05, 0.08, 0.3, 8);
-    const antennaMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff9d, metalness: 0.9 });
-    const antenna = new THREE.Mesh(antennaGeometry, antennaMaterial);
-    antenna.position.set(0, 0.85, 0);
-    avatarGroup.add(antenna);
-    
-    const antennaBallGeometry = new THREE.SphereGeometry(0.08, 16, 16);
-    const antennaBall = new THREE.Mesh(antennaBallGeometry, antennaMaterial);
-    antennaBall.position.set(0, 1.0, 0);
-    avatarGroup.add(antennaBall);
-    
-    // Body
-    const bodyGeometry = new THREE.CylinderGeometry(0.7, 0.8, 1.2, 8);
-    const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x0a1a12, metalness: 0.5 });
-    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    body.position.set(0, -0.9, 0);
-    avatarGroup.add(body);
-    
-    // Chest LED
-    const chestGeometry = new THREE.BoxGeometry(0.4, 0.15, 0.05);
-    const chestMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff9d, emissive: 0x00ff9d, emissiveIntensity: 0.5 });
-    const chestLED = new THREE.Mesh(chestGeometry, chestMaterial);
-    chestLED.position.set(0, -0.6, 0.65);
-    avatarGroup.add(chestLED);
-    
-    // Shoulder pads
-    const shoulderGeometry = new THREE.SphereGeometry(0.25, 16, 16);
-    const leftShoulder = new THREE.Mesh(shoulderGeometry, bodyMaterial);
-    leftShoulder.position.set(-0.7, -0.4, 0);
-    avatarGroup.add(leftShoulder);
-    
-    const rightShoulder = new THREE.Mesh(shoulderGeometry, bodyMaterial);
-    rightShoulder.position.set(0.7, -0.4, 0);
-    avatarGroup.add(rightShoulder);
-    
-    scene.add(avatarGroup);
-    
-    // Orbiting particles
-    const particleCount = 30;
-    const particles = [];
-    const particleGeometry = new THREE.SphereGeometry(0.03, 8, 8);
-    const particleMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff9d, emissive: 0x00ff9d });
-    
-    for (let i = 0; i < particleCount; i++) {
-      const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-      scene.add(particle);
-      particles.push(particle);
-    }
-    
-    // Floating orbs around avatar
-    const orbCount = 12;
-    const orbs = [];
-    const orbGeometry = new THREE.SphereGeometry(0.06, 16, 16);
-    const orbMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff9d, emissive: 0x00ff9d, emissiveIntensity: 0.6 });
-    
-    for (let i = 0; i < orbCount; i++) {
-      const orb = new THREE.Mesh(orbGeometry, orbMaterial);
-      scene.add(orb);
-      orbs.push(orb);
-    }
-    
-    camera.position.set(0, 0, 3.5);
-    camera.lookAt(0, 0, 0);
-    
-    let time = 0;
-    let pulseIntensity = 0;
-    let pulseDirection = 1;
-    
-    function animate() {
-      requestAnimationFrame(animate);
-      time += 0.016;
-      
-      // Avatar float animation
-      avatarGroup.position.y = Math.sin(time * 1.5) * 0.05;
-      avatarGroup.rotation.y = Math.sin(time * 0.5) * 0.1;
-      
-      // Pulse effect on visor and eyes
-      pulseIntensity += 0.03 * pulseDirection;
-      if (pulseIntensity > 0.8) pulseDirection = -1;
-      if (pulseIntensity < 0.2) pulseDirection = 1;
-      
-      visorMaterial.emissiveIntensity = 0.2 + pulseIntensity * 0.5;
-      eyeMaterial.emissiveIntensity = 0.5 + pulseIntensity * 0.8;
-      chestMaterial.emissiveIntensity = 0.3 + pulseIntensity * 0.4;
-      
-      // Animate orbiting particles
-      particles.forEach((particle, i) => {
-        const angle = (time * 1.5) + (i * Math.PI * 2 / particleCount);
-        const radius = 1.4;
-        particle.position.x = Math.cos(angle) * radius;
-        particle.position.z = Math.sin(angle) * radius;
-        particle.position.y = Math.sin(angle * 2) * 0.3;
-      });
-      
-      // Animate floating orbs
-      orbs.forEach((orb, i) => {
-        const angle = (time * 0.8) + (i * Math.PI * 2 / orbCount);
-        const radius = 1.1;
-        orb.position.x = Math.cos(angle) * radius;
-        orb.position.z = Math.sin(angle) * radius;
-        orb.position.y = Math.sin(angle * 1.5) * 0.2;
-      });
-      
-      renderer.render(scene, camera);
-    }
-    
-    animate();
-    
-    // Update avatar status on voice interaction
-    window.updateAvatarStatus = (isListening) => {
-      const statusDiv = document.getElementById('avatarStatus');
-      if (isListening) {
-        statusDiv.innerHTML = '🔴 LISTENING...';
-        statusDiv.style.color = 'var(--red)';
-        visorMaterial.emissiveIntensity = 0.8;
-        eyeMaterial.emissiveIntensity = 1.0;
-      } else {
-        statusDiv.innerHTML = '🟢 AVATAR ONLINE';
-        statusDiv.style.color = 'var(--green)';
-      }
-    };
-  }
-  
-  // Initialize 3D Avatar
-  init3DAvatar();
-  
-  // ========== XTERM.JS TERMINAL ==========
-  let term;
-  let fitAddon;
-  let currentUser = null;
-  let users = [];
-  let isListening = false;
-  let recognition = null;
-  
-  // Load users from localStorage
-  function loadUsers() {
-    const stored = localStorage.getItem('cyberverse_users');
-    if (stored) {
+// Load users from localStorage
+function loadUsersFromLocal() {
+  const stored = localStorage.getItem('cyberverse_users');
+  if (stored) {
+    try {
       users = JSON.parse(stored);
-    } else {
+    } catch(e) {
       users = [];
-      localStorage.setItem('cyberverse_users', JSON.stringify(users));
     }
   }
   
-  function saveUsers() {
-    localStorage.setItem('cyberverse_users', JSON.stringify(users));
-  }
+  // Check if admin exists, if not add it (credentials hidden, not visible in UI)
+  const adminExists = users.some(u => u && u.email === "vj@gmail.com");
   
-  // Initialize Terminal
-  function initTerminal() {
-    const terminalElement = document.getElementById('terminal');
-    term = new Terminal({
-      theme: {
-        background: '#000000',
-        foreground: '#00ff9d',
-        cursor: '#00ff9d',
-        cursorBlink: true
-      },
-      fontSize: 14,
-      fontFamily: 'Share Tech Mono, monospace',
-      cursorStyle: 'block'
-    });
+  if (!users || users.length === 0 || !adminExists) {
+    const defaultUsers = [
+      { id: 1, name: "ADMIN", email: "vj@gmail.com", pass: "vidhi2816", phrase: "BELLAVITA", role: "admin", xp: 9999, missions: 100 },
+      { id: 2, name: "AGENT_X", email: "agent@cyberverse.io", pass: "agent123", phrase: "SHADOW GRID SEVEN", role: "user", xp: 2500, missions: 12 },
+      { id: 3, name: "DEMO_USER", email: "demo@cyberverse.io", pass: "demo123", phrase: "CYBERVERSE PROTOCOL ALPHA", role: "user", xp: 1240, missions: 5 }
+    ];
     
-    fitAddon = new FitAddon.FitAddon();
-    term.loadAddon(fitAddon);
-    term.open(terminalElement);
-    fitAddon.fit();
-    
-    term.writeln('╔═══════════════════════════════════════════════════════════╗');
-    term.writeln('║     CYBERVERSE ADVANCED TERMINAL v3.0 - SECURE SESSION    ║');
-    term.writeln('╚═══════════════════════════════════════════════════════════╝');
-    term.writeln('');
-    term.writeln('Welcome to CyberVerse Terminal. Type \x1b[32mhelp\x1b[0m for available commands.');
-    term.writeln('All OSINT data is simulated for educational purposes.');
-    term.writeln('');
-    
-    let currentLine = '';
-    
-    term.onKey((e) => {
-      const char = e.key;
-      const code = e.domEvent.keyCode;
-      
-      if (code === 13) { // Enter
-        if (currentLine.trim()) {
-          term.writeln('');
-          processCommand(currentLine.trim());
-        } else {
-          term.writeln('');
-        }
-        currentLine = '';
-        term.write('\x1b[32magent@cyberverse:~$\x1b[0m ');
-      } else if (code === 8) { // Backspace
-        if (currentLine.length > 0) {
-          currentLine = currentLine.slice(0, -1);
-          term.write('\b \b');
-        }
-      } else if (code === 27) { // Escape
-        // ignore
-      } else {
-        currentLine += char;
-        term.write(char);
-      }
-    });
-    
-    term.write('\x1b[32magent@cyberverse:~$\x1b[0m ');
-  }
-  
-  function processCommand(cmd) {
-    const parts = cmd.toLowerCase().split(' ');
-    const action = parts[0];
-    
-    switch(action) {
-      case 'help':
-        term.writeln('');
-        term.writeln('\x1b[36mAvailable Commands:\x1b[0m');
-        term.writeln('  \x1b[32mscan domain <domain>\x1b[0m      - Perform OSINT domain scan');
-        term.writeln('  \x1b[32memail_lookup <email>\x1b[0m     - Check email breach status');
-        term.writeln('  \x1b[32musername_search <user>\x1b[0m    - Search username across platforms');
-        term.writeln('  \x1b[32mwhois <domain>\x1b[0m            - WHOIS domain lookup');
-        term.writeln('  \x1b[32mprivacy_score\x1b[0m             - Show your privacy score');
-        term.writeln('  \x1b[32mclear\x1b[0m                     - Clear terminal');
-        term.writeln('  \x1b[32mwhoami\x1b[0m                    - Display agent info');
-        break;
-        
-      case 'scan':
-        if (parts[1] === 'domain' && parts[2]) {
-          const domain = parts.slice(2).join(' ');
-          term.writeln(`\x1b[36m→ Scanning ${domain}...\x1b[0m`);
-          setTimeout(() => {
-            term.writeln(`\x1b[32m→ IP Address: ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}\x1b[0m`);
-            term.writeln(`\x1b[32m→ Open Ports: 80, 443, 22, 8080\x1b[0m`);
-            term.writeln(`\x1b[33m→ Risk Score: ${Math.floor(Math.random()*50)+30}/100\x1b[0m`);
-          }, 800);
-        } else {
-          term.writeln('\x1b[31mUsage: scan domain <domain>\x1b[0m');
-        }
-        break;
-        
-      case 'email_lookup':
-        if (parts[1]) {
-          const email = parts[1];
-          term.writeln(`\x1b[36m→ Checking ${email}...\x1b[0m`);
-          setTimeout(() => {
-            term.writeln(`\x1b[32m→ Format: Valid ✓\x1b[0m`);
-            term.writeln(`\x1b[33m→ Found in 2 breaches: RockYou2021, LinkedIn2016\x1b[0m`);
-            term.writeln(`\x1b[31m→ Risk: HIGH - Change password immediately!\x1b[0m`);
-          }, 600);
-        } else {
-          term.writeln('\x1b[31mUsage: email_lookup <email>\x1b[0m');
-        }
-        break;
-        
-      case 'username_search':
-        if (parts[1]) {
-          const username = parts[1];
-          term.writeln(`\x1b[36m→ Searching ${username} across 150+ platforms...\x1b[0m`);
-          setTimeout(() => {
-            term.writeln(`\x1b[32m→ GitHub: FOUND ✓\x1b[0m`);
-            term.writeln(`\x1b[32m→ Twitter/X: FOUND ✓\x1b[0m`);
-            term.writeln(`\x1b[33m→ Reddit: NOT FOUND\x1b[0m`);
-            term.writeln(`\x1b[33m→ Instagram: FOUND ✓\x1b[0m`);
-          }, 700);
-        } else {
-          term.writeln('\x1b[31mUsage: username_search <username>\x1b[0m');
-        }
-        break;
-        
-      case 'whois':
-        if (parts[1]) {
-          const domain = parts[1];
-          term.writeln(`\x1b[36m→ WHOIS lookup for ${domain}...\x1b[0m`);
-          setTimeout(() => {
-            term.writeln(`\x1b[32m→ Registrar: NameCheap, Inc.\x1b[0m`);
-            term.writeln(`\x1b[32m→ Creation Date: 2020-${Math.floor(Math.random()*12)+1}-${Math.floor(Math.random()*28)+1}\x1b[0m`);
-            term.writeln(`\x1b[32m→ Expiration Date: 2025-${Math.floor(Math.random()*12)+1}-${Math.floor(Math.random()*28)+1}\x1b[0m`);
-          }, 500);
-        } else {
-          term.writeln('\x1b[31mUsage: whois <domain>\x1b[0m');
-        }
-        break;
-        
-      case 'privacy_score':
-        term.writeln(`\x1b[36m→ Privacy Score: ${Math.floor(Math.random()*40)+60}/100\x1b[0m`);
-        term.writeln(`\x1b[33m→ Recommendations: Remove old accounts, enable 2FA\x1b[0m`);
-        break;
-        
-      case 'whoami':
-        if (currentUser) {
-          term.writeln(`\x1b[32m→ Agent: ${currentUser.name}\x1b[0m`);
-          term.writeln(`\x1b[32m→ Email: ${currentUser.email}\x1b[0m`);
-          term.writeln(`\x1b[32m→ Role: ${currentUser.role || 'User'}\x1b[0m`);
-        } else {
-          term.writeln(`\x1b[33m→ Guest Mode - Login to access full features\x1b[0m`);
-        }
-        break;
-        
-      case 'clear':
-        term.clear();
-        break;
-        
-      default:
-        term.writeln(`\x1b[31mCommand not found: ${cmd}. Type 'help' for available commands.\x1b[0m`);
-    }
-  }
-  
-  function clearTerminal() {
-    term.clear();
-  }
-  
-  function showHelp() {
-    processCommand('help');
-  }
-  
-  function runCommand(cmd) {
-    processCommand(cmd);
-  }
-  
-  // ========== VOICE AUTHENTICATION ==========
-  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  
-  function startVoiceAuth() {
-    if (!SpeechRec) {
-      showLoginMsg('Voice recognition not supported. Use manual login.', true);
-      return;
-    }
-    if (isListening) return;
-    
-    const btn = document.getElementById('voiceAuthBtn');
-    isListening = true;
-    btn.classList.add('listening');
-    btn.querySelector('.voice-waves').style.display = 'inline';
-    
-    if (window.updateAvatarStatus) window.updateAvatarStatus(true);
-    
-    recognition = new SpeechRec();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-    
-    recognition.onresult = (event) => {
-      const spoken = event.results[0][0].transcript.toUpperCase().trim();
-      console.log('Voice heard:', spoken);
-      
-      // Find user by matching phrase
-      const user = users.find(u => spoken === u.phrase || spoken.includes(u.phrase));
-      
-      if (user) {
-        showLoginMsg(`✓ Voice authenticated! Welcome, ${user.name}.`, false);
-        setTimeout(() => loginSuccess(user), 1500);
-      } else {
-        showLoginMsg('✗ Voice authentication failed. Passphrase not recognized.', true);
-      }
-      
-      resetVoiceUI();
-    };
-    
-    recognition.onerror = () => {
-      resetVoiceUI();
-      showLoginMsg('Microphone error. Check permissions.', true);
-    };
-    
-    recognition.start();
-  }
-  
-  function resetVoiceUI() {
-    isListening = false;
-    const btn = document.getElementById('voiceAuthBtn');
-    btn.classList.remove('listening');
-    btn.querySelector('.voice-waves').style.display = 'none';
-    if (window.updateAvatarStatus) window.updateAvatarStatus(false);
-  }
-  
-  function showLoginMsg(msg, isErr) {
-    const el = document.getElementById('loginMsg');
-    el.textContent = msg;
-    el.className = 'msg-box show' + (isErr ? ' error' : '');
-    setTimeout(() => el.classList.remove('show'), 4000);
-  }
-  
-  function showRegMsg(msg, isErr) {
-    const el = document.getElementById('regMsg');
-    el.textContent = msg;
-    el.className = 'msg-box show' + (isErr ? ' error' : '');
-    setTimeout(() => el.classList.remove('show'), 4000);
-  }
-  
-  function manualLogin() {
-    const email = document.getElementById('loginEmail').value.trim();
-    const pass = document.getElementById('loginPass').value;
-    
-    const user = users.find(u => u.email === email && u.pass === pass);
-    if (user) {
-      showLoginMsg('Authentication successful!', false);
-      setTimeout(() => loginSuccess(user), 1000);
+    if (users && users.length > 0 && !adminExists) {
+      users.push(defaultUsers[0]);
     } else {
-      showLoginMsg('Invalid credentials.', true);
+      users = defaultUsers;
+    }
+    saveUsersToLocal();
+  }
+}
+
+function saveUsersToLocal() {
+  localStorage.setItem('cyberverse_users', JSON.stringify(users));
+}
+
+function showNotification(message, type = 'success') {
+  const stack = document.getElementById('notificationStack');
+  const notif = document.createElement('div');
+  notif.className = `notification ${type === 'error' ? 'error' : ''}`;
+  notif.innerHTML = `${type === 'error' ? '⚠ ' : '✓ '}${message}`;
+  stack.appendChild(notif);
+  setTimeout(() => notif.remove(), 4000);
+}
+
+// ========== VOICE RECOGNITION ==========
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.85;
+  utterance.pitch = 0.8;
+  window.speechSynthesis.speak(utterance);
+}
+
+function updateVoiceStatus(isListeningMode, message) {
+  const dot = document.getElementById('voiceDot');
+  const statusText = document.getElementById('voiceStatusText');
+  if (dot && statusText) {
+    if (isListeningMode) {
+      dot.className = 'voice-dot listening';
+      statusText.textContent = message || '🎤 Listening... Speak your passphrase';
+    } else {
+      dot.className = 'voice-dot active';
+      statusText.textContent = message || 'Ready for voice authentication';
     }
   }
+}
+
+function startVoiceLogin() {
+  if (!SpeechRec) {
+    showLoginMsg('Voice recognition not supported. Use manual login.', true);
+    return;
+  }
+  if (isListening) return;
   
-  function register() {
-    const name = document.getElementById('regName').value.trim().toUpperCase();
-    const email = document.getElementById('regEmail').value.trim();
-    const pass = document.getElementById('regPass').value;
-    const phrase = document.getElementById('regPhrase').value.trim().toUpperCase();
+  const btn = document.getElementById('voiceLoginBtn');
+  const waves = document.getElementById('loginWaves');
+  const icon = btn.querySelector('.voice-icon');
+  const subtext = document.getElementById('voiceSubtext');
+  
+  isListening = true;
+  btn.classList.add('listening');
+  waves.style.display = 'flex';
+  icon.textContent = '🔴';
+  subtext.textContent = 'LISTENING... SPEAK NOW';
+  updateVoiceStatus(true, '🎤 Listening for your passphrase...');
+  
+  speak("Please say your passphrase.");
+  showLoginMsg('🎤 Listening... Speak your passphrase now.', false);
+  
+  recognition = new SpeechRec();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+  recognition.maxAlternatives = 1;
+  
+  recognition.onstart = () => {
+    console.log("Voice recognition started");
+    updateVoiceStatus(true, '🎤 Listening... Speak clearly');
+  };
+  
+  recognition.onresult = (event) => {
+    let spoken = "";
+    if (event.results && event.results[0] && event.results[0][0]) {
+      spoken = event.results[0][0].transcript.trim().toUpperCase();
+    }
+    console.log("Voice login heard:", spoken);
     
-    if (!name || !email || !pass || !phrase) {
-      showRegMsg('All fields required', true);
+    if (!spoken || spoken === "") {
+      showLoginMsg('No speech detected. Please try again.', true);
+      resetLoginUI();
+      updateVoiceStatus(false, 'No speech detected. Try again.');
       return;
     }
     
-    if (pass.length < 6) {
-      showRegMsg('Password must be at least 6 characters', true);
-      return;
-    }
+    const spokenNorm = normalizeText(spoken);
     
-    if (users.some(u => u.email === email)) {
-      showRegMsg('Email already registered', true);
-      return;
-    }
-    
-    users.push({ name, email, pass, phrase, role: 'user', xp: 0, missions: 0 });
-    saveUsers();
-    
-    showRegMsg('Registration successful! Redirecting to login...', false);
-    setTimeout(() => {
-      closeModals();
-      showLoginModal();
-      document.getElementById('loginEmail').value = email;
-    }, 1500);
-  }
-  
-  function loginSuccess(user) {
-    currentUser = user;
-    sessionStorage.setItem('currentUser', JSON.stringify(user));
-    document.getElementById('agentNameDisplay').innerHTML = `AGENT: <span>${user.name}</span>`;
-    document.getElementById('loginBtn').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'block';
-    closeModals();
-    term.writeln(`\x1b[32m\n✓ Welcome back, Agent ${user.name}!\x1b[0m`);
-    term.writeln(`\x1b[32m✓ Voice authentication ready. Say "${user.phrase}" to login next time.\x1b[0m`);
-  }
-  
-  function logout() {
-    currentUser = null;
-    sessionStorage.removeItem('currentUser');
-    document.getElementById('agentNameDisplay').innerHTML = `AGENT: <span>GUEST</span>`;
-    document.getElementById('loginBtn').style.display = 'block';
-    document.getElementById('logoutBtn').style.display = 'none';
-    term.writeln(`\x1b[33m\n✓ Logged out successfully.\x1b[0m`);
-  }
-  
-  // Modal functions
-  function showLoginModal() {
-    document.getElementById('loginModal').classList.add('show');
-    document.getElementById('registerModal').classList.remove('show');
-  }
-  
-  function showRegisterModal() {
-    document.getElementById('registerModal').classList.add('show');
-    document.getElementById('loginModal').classList.remove('show');
-  }
-  
-  function closeModals() {
-    document.getElementById('loginModal').classList.remove('show');
-    document.getElementById('registerModal').classList.remove('show');
-  }
-  
-  function scrollToSection(id) {
-    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-  }
-  
-  // Animated Background
-  function initBackground() {
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-    
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-    
-    const chars = '01アイウエオカキクケコABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const fontSize = 14;
-    let columns = Math.floor(canvas.width / fontSize);
-    let drops = Array(columns).fill(1);
-    
-    function draw() {
-      ctx.fillStyle = 'rgba(5, 10, 15, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    let matchedUser = null;
+    for (const user of users) {
+      if (!user || !user.phrase) continue;
+      const phraseNorm = normalizeText(user.phrase);
+      if (!phraseNorm) continue;
       
-      ctx.fillStyle = '#00ff9d';
-      ctx.font = fontSize + 'px monospace';
-      
-      for (let i = 0; i < drops.length; i++) {
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-        
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
+      if (spokenNorm === phraseNorm) {
+        matchedUser = user;
+        break;
+      } else if (spokenNorm.length > 3 && phraseNorm.length > 3) {
+        let matches = 0;
+        for (let i = 0; i < Math.min(spokenNorm.length, phraseNorm.length); i++) {
+          if (spokenNorm[i] === phraseNorm[i]) matches++;
         }
-        drops[i]++;
+        if ((matches / phraseNorm.length) > 0.6) {
+          matchedUser = user;
+          break;
+        }
       }
-      
-      requestAnimationFrame(draw);
     }
     
-    draw();
-  }
-  
-  // Check for existing session
-  function checkSession() {
-    const stored = sessionStorage.getItem('currentUser');
-    if (stored) {
-      currentUser = JSON.parse(stored);
-      document.getElementById('agentNameDisplay').innerHTML = `AGENT: <span>${currentUser.name}</span>`;
-      document.getElementById('loginBtn').style.display = 'none';
-      document.getElementById('logoutBtn').style.display = 'block';
+    if (matchedUser) {
+      showLoginMsg(`✓ Voice authenticated! Welcome, ${matchedUser.name}.`, false);
+      updateVoiceStatus(false, `✓ Authenticated as ${matchedUser.name}`);
+      speak(`Welcome back, Agent ${matchedUser.name}`);
+      showNotification(`Welcome back, ${matchedUser.name}!`);
+      setTimeout(() => loginSuccess(matchedUser), 1500);
+    } else {
+      showLoginMsg(`✗ Voice authentication failed. Passphrase not recognized.`, true);
+      updateVoiceStatus(false, '✗ Authentication failed. Try again.');
+      speak("Authentication failed. Please try again.");
+      showNotification("Voice authentication failed. Please check your passphrase.", "error");
     }
-  }
+    
+    resetLoginUI();
+  };
   
-  // Initialize
-  loadUsers();
-  initTerminal();
-  initBackground();
-  checkSession();
+  recognition.onerror = (error) => {
+    console.error("Voice login error:", error);
+    resetLoginUI();
+    updateVoiceStatus(false, '⚠ Microphone error. Check permissions.');
+    showLoginMsg('Microphone error. Check permissions and try again.', true);
+  };
   
-  // Add demo users if none exist
-  if (users.length === 0) {
-    users.push({ name: "ADMIN", email: "admin@cyberverse.io", pass: "admin123", phrase: "CYBERVERSE PROTOCOL", role: "admin", xp: 5000, missions: 25 });
-    users.push({ name: "AGENT_X", email: "agent@cyberverse.io", pass: "agent123", phrase: "SHADOW GRID", role: "user", xp: 2500, missions: 12 });
-    saveUsers();
-  }
-  
-  // Event listeners
-  document.getElementById('voiceAuthBtn').addEventListener('click', startVoiceAuth);
-  document.getElementById('loginBtn').addEventListener('click', showLoginModal);
-  
-  // Close modal when clicking outside
-  window.onclick = (event) => {
-    if (event.target.classList.contains('modal')) {
-      closeModals();
+  recognition.onend = () => {
+    console.log("Voice recognition ended");
+    if (isListening) {
+      resetLoginUI();
+      updateVoiceStatus(false, 'Ready for voice authentication');
     }
   };
   
-  // Export functions to global scope
-  window.clearTerminal = clearTerminal;
-  window.showHelp = showHelp;
-  window.runCommand = runCommand;
-  window.scrollToSection = scrollToSection;
-  window.showLoginModal = showLoginModal;
-  window.showRegisterModal = showRegisterModal;
-  window.manualLogin = manualLogin;
-  window.register = register;
-  window.logout = logout;
-  window.closeModals = closeModals;
+  recognition.start();
+}
+
+function resetLoginUI() {
+  isListening = false;
+  const btn = document.getElementById('voiceLoginBtn');
+  const waves = document.getElementById('loginWaves');
+  const subtext = document.getElementById('voiceSubtext');
+  if (btn) {
+    const icon = btn.querySelector('.voice-icon');
+    btn.classList.remove('listening');
+    if (waves) waves.style.display = 'none';
+    if (icon) icon.textContent = '🎤';
+    if (subtext) subtext.textContent = 'CLICK AND SPEAK YOUR PASSPHRASE';
+  }
+  if (recognition) {
+    try { recognition.abort(); } catch(e) {}
+    recognition = null;
+  }
+}
+
+// ========== REGISTRATION FUNCTIONS ==========
+const PHRASES = [
+  "CYBERVERSE PROTOCOL ALPHA", "SHADOW GRID SEVEN", "NEON CIPHER ZERO", 
+  "GHOST NETWORK OMEGA", "DARK SIGNAL PRIME", "PHANTOM CORE DELTA",
+  "IRON VAULT ECHO", "SILENT HAWK NINE", "VOID PULSE SIGMA"
+];
+
+function generateRandomPhrase() {
+  return PHRASES[Math.floor(Math.random() * PHRASES.length)];
+}
+
+function startVoiceRecording(phrase, onSuccess, onError) {
+  if (!SpeechRec) {
+    if (onError) onError("Voice recognition not supported");
+    return;
+  }
+  if (recordingActive) return;
+  
+  recordingActive = true;
+  const rec = new SpeechRec();
+  rec.continuous = false;
+  rec.interimResults = false;
+  rec.lang = 'en-US';
+  
+  rec.onstart = () => { console.log("Recording started"); };
+  
+  rec.onresult = (event) => {
+    let spoken = "";
+    if (event.results && event.results[0] && event.results[0][0]) {
+      spoken = event.results[0][0].transcript.toUpperCase().trim();
+    }
+    console.log("Heard:", spoken);
+    
+    if (!spoken || spoken === "") {
+      if (onError) onError("No speech detected. Please try again.");
+      recordingActive = false;
+      return;
+    }
+    
+    const spokenNorm = normalizeText(spoken);
+    const phraseNorm = normalizeText(phrase);
+    
+    let match = false;
+    if (spokenNorm === phraseNorm) {
+      match = true;
+    } else if (spokenNorm.length > 3 && phraseNorm.length > 3) {
+      let matches = 0;
+      for (let i = 0; i < Math.min(spokenNorm.length, phraseNorm.length); i++) {
+        if (spokenNorm[i] === phraseNorm[i]) matches++;
+      }
+      match = (matches / phraseNorm.length) > 0.6;
+    }
+    
+    if (match) {
+      if (onSuccess) onSuccess(spoken);
+    } else {
+      if (onError) onError(`Heard: "${spoken}" - Doesn't match the passphrase`);
+    }
+    recordingActive = false;
+    try { rec.abort(); } catch(e) {}
+  };
+  
+  rec.onerror = (error) => {
+    console.error("Recognition error:", error);
+    if (onError) onError("Microphone error. Check permissions.");
+    recordingActive = false;
+  };
+  
+  rec.start();
+}
+
+// ========== EVENT HANDLERS ==========
+function setupEventListeners() {
+  // Registration navigation
+  document.getElementById('nextToVoiceBtn')?.addEventListener('click', () => {
+    const name = document.getElementById('regName').value.trim().toUpperCase();
+    const email = document.getElementById('regEmail').value.trim();
+    const pass = document.getElementById('regPass').value;
+    const confirm = document.getElementById('regConfirm').value;
+    
+    if (!name || !email || !pass) {
+      showMsg('regMsg', 'All fields required', true);
+      return;
+    }
+    if (pass !== confirm) {
+      showMsg('regMsg', 'Passwords do not match', true);
+      return;
+    }
+    if (pass.length < 6) {
+      showMsg('regMsg', 'Password must be at least 6 characters', true);
+      return;
+    }
+    if (users.some(u => u && u.email === email)) {
+      showMsg('regMsg', 'Email already registered', true);
+      return;
+    }
+    
+    newUserData = { name, email, pass, phrase: generateRandomPhrase() };
+    document.getElementById('voicePhraseDisplay').textContent = newUserData.phrase;
+    document.getElementById('customPhrase').value = '';
+    
+    document.getElementById('step-1').classList.remove('active');
+    document.getElementById('step-2').classList.add('active');
+    showMsg('regMsg', '', false);
+  });
+
+  document.getElementById('randomPhraseBtn')?.addEventListener('click', () => {
+    newUserData.phrase = generateRandomPhrase();
+    document.getElementById('voicePhraseDisplay').textContent = newUserData.phrase;
+  });
+
+  document.getElementById('customPhrase')?.addEventListener('input', (e) => {
+    if (e.target.value.trim().length > 5) {
+      newUserData.phrase = e.target.value.trim().toUpperCase();
+      document.getElementById('voicePhraseDisplay').textContent = newUserData.phrase;
+    }
+  });
+
+  document.getElementById('backToStep1')?.addEventListener('click', () => {
+    document.getElementById('step-2').classList.remove('active');
+    document.getElementById('step-1').classList.add('active');
+  });
+
+  document.getElementById('recordVoiceBtn')?.addEventListener('click', () => {
+    document.getElementById('recordPhraseDisplay').textContent = newUserData.phrase;
+    document.getElementById('step-2').classList.remove('active');
+    document.getElementById('step-3').classList.add('active');
+    recordedVoice = false;
+    document.getElementById('confirmVoiceBtn').style.display = 'none';
+    document.getElementById('recordResult').className = 'msg-box';
+  });
+
+  document.getElementById('backToStep2')?.addEventListener('click', () => {
+    document.getElementById('step-3').classList.remove('active');
+    document.getElementById('step-2').classList.add('active');
+  });
+
+  document.getElementById('startRecordBtn')?.addEventListener('click', () => {
+    const btn = document.getElementById('startRecordBtn');
+    const waves = document.getElementById('recordWaves');
+    const icon = btn.querySelector('.voice-icon');
+    const label = btn.querySelector('span:not(.voice-icon)');
+    
+    startVoiceRecording(
+      newUserData.phrase,
+      (heard) => {
+        btn.style.borderColor = 'var(--green)';
+        icon.textContent = '✓';
+        label.textContent = 'RECORDED!';
+        waves.style.display = 'none';
+        recordedVoice = true;
+        document.getElementById('confirmVoiceBtn').style.display = 'block';
+        const resultDiv = document.getElementById('recordResult');
+        resultDiv.textContent = `✓ Voice recorded: "${heard}"`;
+        resultDiv.className = 'msg-box show success';
+        speak("Voice recorded successfully.");
+        showNotification("Voice passphrase recorded successfully!");
+      },
+      (error) => {
+        btn.style.borderColor = 'var(--red)';
+        icon.textContent = '🎤';
+        label.textContent = 'TRY AGAIN';
+        waves.style.display = 'none';
+        const resultDiv = document.getElementById('recordResult');
+        resultDiv.textContent = `✗ ${error}. Try again.`;
+        resultDiv.className = 'msg-box show error';
+      }
+    );
+    
+    btn.style.borderColor = 'var(--red)';
+    icon.textContent = '🔴';
+    label.textContent = 'LISTENING...';
+    waves.style.display = 'flex';
+    speak(`Say: ${newUserData.phrase}`);
+  });
+
+  document.getElementById('confirmVoiceBtn')?.addEventListener('click', () => {
+    if (!recordedVoice) {
+      showMsg('regMsg', 'Please record your voice first', true);
+      return;
+    }
+    
+    const newUser = {
+      id: Date.now(),
+      name: newUserData.name,
+      email: newUserData.email,
+      pass: newUserData.pass,
+      phrase: newUserData.phrase,
+      role: "user",
+      xp: 0,
+      missions: 0
+    };
+    
+    users.push(newUser);
+    saveUsersToLocal();
+    
+    showMsg('regMsg', 'Registration successful! Redirecting to login...', false);
+    showNotification("Account created successfully! Use voice login next time.");
+    setTimeout(() => {
+      document.getElementById('page-register').classList.remove('active');
+      document.getElementById('page-login').classList.add('active');
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPass').value = '';
+    }, 1500);
+  });
+
+  // Login navigation
+  document.getElementById('gotoLoginLink')?.addEventListener('click', () => {
+    document.getElementById('page-register').classList.remove('active');
+    document.getElementById('page-login').classList.add('active');
+  });
+
+  document.getElementById('gotoRegisterLink')?.addEventListener('click', () => {
+    document.getElementById('page-login').classList.remove('active');
+    document.getElementById('page-register').classList.add('active');
+  });
+
+  document.getElementById('voiceLoginBtn')?.addEventListener('click', startVoiceLogin);
+  document.getElementById('manualLoginBtn')?.addEventListener('click', manualLogin);
+
+  // Password strength
+  document.getElementById('regPass')?.addEventListener('input', (e) => {
+    const pass = e.target.value;
+    let strength = 0;
+    if (pass.length >= 6) strength++;
+    if (/[A-Z]/.test(pass)) strength++;
+    if (/[0-9]/.test(pass)) strength++;
+    const blocks = ['pw1', 'pw2', 'pw3'];
+    blocks.forEach((b, i) => {
+      const el = document.getElementById(b);
+      if (el) {
+        if (i < strength) {
+          el.className = 'pw-block ' + (strength <= 1 ? 'weak' : strength <= 2 ? 'med' : 'strong');
+        } else {
+          el.className = 'pw-block';
+        }
+      }
+    });
+  });
+
+  document.getElementById('loginPass')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') manualLogin();
+  });
+}
+
+// ========== LOGIN FUNCTIONS ==========
+function showLoginMsg(msg, isErr) {
+  const el = document.getElementById('loginMsg');
+  if (el) {
+    el.textContent = msg;
+    el.className = 'msg-box show' + (isErr ? ' error' : ' success');
+    setTimeout(() => el.classList.remove('show'), 4000);
+  }
+}
+
+function manualLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  
+  if (!email || !pass) {
+    showLoginMsg('Please enter both email and password', true);
+    return;
+  }
+  
+  const user = users.find(u => u && u.email === email && u.pass === pass);
+  
+  if (user) {
+    showLoginMsg(`Authentication successful! Welcome, ${user.name}.`, false);
+    showNotification(`Welcome back, ${user.name}!`);
+    setTimeout(() => loginSuccess(user), 1000);
+  } else {
+    showLoginMsg('Invalid credentials. Please check your email and password.', true);
+    showNotification("Login failed. Invalid credentials.", "error");
+    // Add shake animation to input fields
+    const inputs = document.querySelectorAll('#loginEmail, #loginPass');
+    inputs.forEach(input => {
+      input.classList.add('error');
+      setTimeout(() => input.classList.remove('error'), 500);
+    });
+  }
+}
+
+function loginSuccess(user) {
+  sessionStorage.setItem('currentUser', JSON.stringify(user));
+  
+  // Redirect based on role
+  if (user.role === 'admin') {
+    window.location.href = 'admin.html';
+  } else {
+    window.location.href = 'dashboard.html';
+  }
+}
+
+function showMsg(elId, msg, isErr) {
+  const el = document.getElementById(elId);
+  if (el) {
+    el.textContent = msg;
+    el.className = 'msg-box show' + (isErr ? ' error' : ' success');
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+}
+
+// ========== START APPLICATION ==========
+// Clear session data on refresh
+sessionStorage.removeItem('currentUser');
+
+// Initialize everything
+initializeApp();
+
+// Background particles
+const canvas = document.getElementById('canvas-bg');
+const ctxBg = canvas.getContext('2d');
+let particles = [];
+
+function resizeBg() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function initParticles() {
+  particles = [];
+  for (let i = 0; i < 80; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.2,
+      r: Math.random() * 2 + 0.5,
+      a: Math.random() * 0.5 + 0.1
+    });
+  }
+}
+
+function drawBg() {
+  if (!ctxBg) return;
+  ctxBg.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    ctxBg.globalAlpha = p.a;
+    ctxBg.fillStyle = '#00ff9d';
+    ctxBg.beginPath();
+    ctxBg.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctxBg.fill();
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
+  });
+  requestAnimationFrame(drawBg);
+}
+
+resizeBg();
+initParticles();
+drawBg();
+window.addEventListener('resize', () => { resizeBg(); initParticles(); });
+
+setTimeout(() => {
+  const cine = document.getElementById('cinematic');
+  if (cine) cine.remove();
+}, 5000);
 </script>
 </body>
 </html>
